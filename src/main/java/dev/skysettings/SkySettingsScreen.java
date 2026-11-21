@@ -95,7 +95,7 @@ public class SkySettingsScreen extends Screen {
 				y = slider(x, y, w, rowH, "Dichte", 0f, 3f, c.fogDensity, v -> c.fogDensity = v, SkySettingsScreen::percent);
 			}
 			case DESIGN -> {
-				addDrawableChild(new Swatches(textRenderer, x, y, w, rowH));
+				addDrawableChild(new Swatches(textRenderer, x, y, w, rowH, this::clearAndInit));
 				y += rowH;
 				addDrawableChild(new Action(textRenderer, x, y + 1, w, rowH - 4, () -> "Stil: " + Theme.STYLE_NAMES[c.style], false, () -> {
 					c.style = (c.style + 1) % Theme.STYLE_NAMES.length;
@@ -306,8 +306,11 @@ public class SkySettingsScreen extends Screen {
 	private static final class Swatches extends Base {
 		private static final int SIZE = 20;
 
-		Swatches(TextRenderer font, int x, int y, int w, int h) {
+		private final Runnable refresh;
+
+		Swatches(TextRenderer font, int x, int y, int w, int h, Runnable refresh) {
 			super(font, x, y, w, h);
+			this.refresh = refresh;
 		}
 
 		private int gap() {
@@ -338,7 +341,7 @@ public class SkySettingsScreen extends Screen {
 				c.accentR = ((rgb >> 16) & 0xFF) / 255f;
 				c.accentG = ((rgb >> 8) & 0xFF) / 255f;
 				c.accentB = (rgb & 0xFF) / 255f;
-				net.minecraft.client.MinecraftClient.getInstance().currentScreen.clearAndInit();
+				refresh.run();
 			}
 		}
 
