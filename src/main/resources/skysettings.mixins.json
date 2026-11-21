@@ -3,7 +3,8 @@
   "package": "dev.skysettings.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "WorldEnvironmentAttributeAccessMixin"
+    "WorldEnvironmentAttributeAccessMixin",
+      "TimelineMixin"
   ],
   "injectors": {
     "defaultRequire": 1
