@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "WorldEnvironmentAttributeAccessMixin",
-      "TimelineMixin"
+      "WorldTimeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

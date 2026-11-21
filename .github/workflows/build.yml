@@ -21,22 +21,6 @@ jobs:
           gradle-version: 9.8.2
       - name: Build
         run: gradle build --no-daemon
-      - name: Inspect Minecraft API
-        continue-on-error: true
-        run: |
-          J=$(find ~/.gradle -name 'minecraft-merged-1.21.11*.jar' | head -1)
-          echo "JAR=$J"
-          for c in net.minecraft.client.gui.widget.ClickableWidget net.minecraft.client.gui.widget.SliderWidget net.minecraft.client.gui.widget.PressableWidget net.minecraft.client.gui.screen.Screen net.minecraft.client.gui.DrawContext net.minecraft.client.gui.Click; do
-            echo "--- $c"; javap -p -cp "$J" "$c" | grep -vE "method_[0-9]+|field_[0-9]+" | grep -iE "click|drag|release|fill|render|drawText|drawCentered|drawBorder|stroke|keyPressed|narrat|class |hovered|isHovered|setValue|applyValue|updateMessage|height|width|getX|getY|active|visible" | head -60
-          done
-          echo "=== TIME"
-          javap -p -c -cp "$J" net.minecraft.world.attribute.timeline.Timeline | grep -E "getEffectiveTimeOfDay|getRawTimeOfDay|getModification|invoke|^  [a-z].*\(" | head -80
-          javap -p -c -cp "$J" net.minecraft.world.attribute.WorldEnvironmentAttributeAccess | sed -n '/method_76402/,/^$/p' | head -60
-          javap -p -cp "$J" 'net.minecraft.world.World' | grep -iE "time|clock"
-          javap -p -cp "$J" 'net.minecraft.client.world.ClientWorld' | grep -iE "time|clock"
-          javap -p -cp "$J" 'net.minecraft.client.world.ClientWorld$Properties' | grep -iE "time|clock"
-          javap -p -cp "$J" net.minecraft.world.timer.Timer | head -5 || true
-          unzip -l "$J" | grep -iE "net/minecraft/(world|client/world)/[A-Za-z]*(Clock|Time)[A-Za-z$]*\.class" | awk '{print $4}'
       - name: Jar pruefen
         run: unzip -l build/libs/skysettings-1.0.0.jar | grep -E "fabric.mod.json|SkySettingsClient"
       - uses: actions/upload-artifact@v4

@@ -52,6 +52,14 @@ public final class SkyConfig {
 	public Tint cloudTint = new Tint();
 	public Tint fogTint = new Tint();
 
+	// --- Design des Menues ---
+	/** 0 = Dunkel, 1 = Hell, 2 = Glas, 3 = Neon */
+	public int style = 0;
+	public float accentR = 0.24f, accentG = 0.55f, accentB = 1.0f;
+	/** 0.3 - 1 */
+	public float panelOpacity = 0.92f;
+	public boolean rounded = true;
+
 	public static SkyConfig get() {
 		return instance;
 	}
@@ -84,6 +92,17 @@ public final class SkyConfig {
 		}
 	}
 
+	public void resetTheme() {
+		SkyConfig d = new SkyConfig();
+		style = d.style;
+		accentR = d.accentR;
+		accentG = d.accentG;
+		accentB = d.accentB;
+		panelOpacity = d.panelOpacity;
+		rounded = d.rounded;
+	}
+
+	/** Setzt nur die Himmel-Einstellungen zurueck, nicht das Menue-Design. */
 	public void reset() {
 		SkyConfig d = new SkyConfig();
 		enabled = d.enabled;
@@ -122,6 +141,11 @@ public final class SkyConfig {
 		skyTint.clamp();
 		cloudTint.clamp();
 		fogTint.clamp();
+		style = Math.max(0, Math.min(3, style));
+		accentR = c01(accentR);
+		accentG = c01(accentG);
+		accentB = c01(accentB);
+		panelOpacity = Math.max(0.3f, Math.min(1f, panelOpacity));
 	}
 
 	private static float c01(float v) {

@@ -3,7 +3,7 @@
   "id": "skysettings",
   "version": "${version}",
   "name": "Sky Settings",
-  "description": "Öffne mit /sky ein Menü für Uhrzeit, Helligkeit, Sättigung, Himmel-, Wolken- und Nebelfarbe.",
+  "description": "Öffne mit /sky ein Menü (mit wählbarem Design) für Uhrzeit, Helligkeit, Sättigung, Himmel-, Wolken- und Nebelfarbe.",
   "authors": ["Du"],
   "license": "MIT",
   "environment": "client",
