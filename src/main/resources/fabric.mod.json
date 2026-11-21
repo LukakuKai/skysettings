@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "skycontrol",
+  "version": "${version}",
+  "name": "SkyControl",
+  "description": "Mit /sky ein Menue oeffnen: Uhrzeit, Helligkeit, Saettigung, Himmel-, Wolken- und Nebelfarbe einstellen (nur Client).",
+  "authors": ["Du"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": { "client": ["de.skycontrol.SkyControlClient"] },
+  "mixins": ["skycontrol.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
