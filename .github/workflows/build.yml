@@ -2,7 +2,6 @@ name: Build mod
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -16,21 +15,38 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.10.2
-      - run: gradle build --no-daemon
+          gradle-version: 9.8.2
+      - name: Build
+        run: gradle build --no-daemon
+      - name: Inspect Minecraft API
+        continue-on-error: true
+        run: |
+          for j in $(find ~/.gradle /home/runner/work -name '*.jar' 2>/dev/null); do
+            if unzip -l "$j" 2>/dev/null | grep -q 'net/minecraft/world/attribute/EnvironmentAttributes.class'; then
+              echo "=== JAR: $j"
+              javap -p -cp "$j" net.minecraft.world.attribute.EnvironmentAttributes | grep -iE "VISUAL|ANGLE|SKY|STAR|MOON|SUN|TIME|FOG|CLOUD" 
+              javap -p -cp "$j" net.minecraft.world.attribute.WorldEnvironmentAttributeAccess
+              for c in $(unzip -l "$j" | grep -oE 'net/minecraft/[a-z/]*(Clock|Timeline|WorldTime|TimeOfDay)[A-Za-z$]*\.class' | sed 's/\.class//;s#/#.#g' | sort -u | head -40); do
+                echo "--- $c"; javap -p -cp "$j" "$c" | head -40
+              done
+              break
+            fi
+          done
+      - name: Jar pruefen
+        run: unzip -l build/libs/skysettings-1.0.0.jar | grep -E "fabric.mod.json|SkySettingsClient"
       - uses: actions/upload-artifact@v4
         with:
-          name: skycontrol-mod
-          path: build/libs/*.jar
+          name: skysettings
+          path: build/libs/skysettings-1.0.0.jar
       - name: Release mit JAR veroeffentlichen
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete latest --cleanup-tag --yes || true
-          gh release create latest build/libs/skycontrol-1.0.0.jar \
-            --title "SkyControl (neuester Build)" \
-            --notes "Automatisch gebaut. Die JAR kommt in den mods-Ordner (Fabric 1.21.1 + Fabric API)."
+          gh release create latest build/libs/skysettings-1.0.0.jar \
+            --title "SkySettings (neuester Build)" \
+            --notes "Automatisch gebaut fuer Minecraft 1.21.11 (Fabric). JAR in den mods-Ordner legen."
