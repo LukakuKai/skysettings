@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,3 +25,12 @@ jobs:
         with:
           name: skycontrol-mod
           path: build/libs/*.jar
+      - name: Release mit JAR veroeffentlichen
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest build/libs/skycontrol-1.0.0.jar \
+            --title "SkyControl (neuester Build)" \
+            --notes "Automatisch gebaut. Die JAR kommt in den mods-Ordner (Fabric 1.21.1 + Fabric API)."
