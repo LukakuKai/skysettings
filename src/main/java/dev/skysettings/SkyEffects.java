@@ -1,5 +1,6 @@
 package dev.skysettings;
 
+import net.minecraft.world.MoonPhase;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 
@@ -38,6 +39,15 @@ public final class SkyEffects {
 		} else if (attribute == EnvironmentAttributes.FOG_COLOR_VISUAL) {
 			if (value instanceof Integer color) {
 				return color(color, c.fogTint, c.skyBrightness, c.saturation);
+			}
+		} else if (attribute == EnvironmentAttributes.SUNRISE_SUNSET_COLOR_VISUAL) {
+			if (value instanceof Integer color) {
+				return color(color, c.dawnTint, 1f, c.saturation);
+			}
+		} else if (attribute == EnvironmentAttributes.MOON_PHASE_VISUAL) {
+			if (value instanceof MoonPhase && c.moonPhase > 0) {
+				MoonPhase[] phases = MoonPhase.values();
+				return phases[(c.moonPhase - 1) % phases.length];
 			}
 		} else if (attribute == EnvironmentAttributes.STAR_BRIGHTNESS_VISUAL) {
 			if (value instanceof Float f) {

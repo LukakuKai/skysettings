@@ -17,6 +17,7 @@ public class SkySettingsClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		SkyConfig.load();
+		Profiles.load();
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			for (String name : new String[] {"sky", "skysettings"}) {

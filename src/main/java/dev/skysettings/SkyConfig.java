@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 /** Speichert alle Einstellungen in config/skysettings.json. */
 public final class SkyConfig {
-	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static SkyConfig instance = new SkyConfig();
 
 	/** Eigene Farbe, die in den normalen Wert hineingemischt wird. */
@@ -27,8 +27,18 @@ public final class SkyConfig {
 			g = c01(g);
 			b = c01(b);
 		}
+
+		Tint copy() {
+			Tint t = new Tint();
+			t.strength = strength;
+			t.r = r;
+			t.g = g;
+			t.b = b;
+			return t;
+		}
 	}
 
+	// --- Himmel ---
 	public boolean enabled = true;
 	/** 0 - 2 (1 = Vanilla), gilt fuer Himmel- und Nebelfarbe */
 	public float skyBrightness = 1.0f;
@@ -38,8 +48,12 @@ public final class SkyConfig {
 	public float starBrightness = 1.0f;
 	/** Eigene Uhrzeit (nur Oberwelt, nur bei dir sichtbar) */
 	public boolean customTime = false;
-	/** 0 - 24 Uhr */
+	/** 0 - 24 Uhr (Startzeit) */
 	public float clockHours = 12f;
+	/** 0 = Uhrzeit steht still, 1 = normale Spielgeschwindigkeit */
+	public float timeSpeed = 0f;
+	/** 0 = automatisch, 1 - 8 = feste Mondphase */
+	public int moonPhase = 0;
 	/** 0 - 1 (1 = Vanilla) */
 	public float cloudOpacity = 1.0f;
 	/** 0 - 2 (1 = Vanilla) */
@@ -51,14 +65,21 @@ public final class SkyConfig {
 	public Tint skyTint = new Tint();
 	public Tint cloudTint = new Tint();
 	public Tint fogTint = new Tint();
+	/** Farbe von Sonnenauf- und -untergang */
+	public Tint dawnTint = new Tint();
 
 	// --- Design des Menues ---
-	/** 0 = Dunkel, 1 = Hell, 2 = Glas, 3 = Neon */
+	/** Index in Theme.STYLES */
 	public int style = 0;
-	public float accentR = 0.24f, accentG = 0.55f, accentB = 1.0f;
+	public float accentR = 0.42f, accentG = 0.55f, accentB = 0.84f;
 	/** 0.3 - 1 */
-	public float panelOpacity = 0.92f;
+	public float panelOpacity = 1.0f;
 	public boolean rounded = true;
+	public boolean animations = true;
+	/** 0.2 - 3 */
+	public float animSpeed = 1.0f;
+
+	private transient long anchorNanos = System.nanoTime();
 
 	public static SkyConfig get() {
 		return instance;
@@ -100,29 +121,47 @@ public final class SkyConfig {
 		accentB = d.accentB;
 		panelOpacity = d.panelOpacity;
 		rounded = d.rounded;
+		animations = d.animations;
+		animSpeed = d.animSpeed;
 	}
 
 	/** Setzt nur die Himmel-Einstellungen zurueck, nicht das Menue-Design. */
 	public void reset() {
-		SkyConfig d = new SkyConfig();
-		enabled = d.enabled;
-		skyBrightness = d.skyBrightness;
-		saturation = d.saturation;
-		starBrightness = d.starBrightness;
-		customTime = d.customTime;
-		clockHours = d.clockHours;
-		cloudOpacity = d.cloudOpacity;
-		cloudBrightness = d.cloudBrightness;
-		cloudHeightOffset = d.cloudHeightOffset;
-		fogDensity = d.fogDensity;
-		skyTint = d.skyTint;
-		cloudTint = d.cloudTint;
-		fogTint = d.fogTint;
+		applySky(new SkyConfig());
+	}
+
+	/** Uebernimmt alle Himmel-Einstellungen (nicht das Menue-Design) aus einer anderen Config. */
+	public void applySky(SkyConfig o) {
+		skyBrightness = o.skyBrightness;
+		saturation = o.saturation;
+		starBrightness = o.starBrightness;
+		customTime = o.customTime;
+		clockHours = o.clockHours;
+		timeSpeed = o.timeSpeed;
+		moonPhase = o.moonPhase;
+		cloudOpacity = o.cloudOpacity;
+		cloudBrightness = o.cloudBrightness;
+		cloudHeightOffset = o.cloudHeightOffset;
+		fogDensity = o.fogDensity;
+		skyTint = o.skyTint == null ? new Tint() : o.skyTint.copy();
+		cloudTint = o.cloudTint == null ? new Tint() : o.cloudTint.copy();
+		fogTint = o.fogTint == null ? new Tint() : o.fogTint.copy();
+		dawnTint = o.dawnTint == null ? new Tint() : o.dawnTint.copy();
+		restartClock();
+	}
+
+	/** Startet die laufende Uhr neu (nach Aenderung von Uhrzeit oder Tempo). */
+	public void restartClock() {
+		anchorNanos = System.nanoTime();
 	}
 
 	/** Minecraft-Tageszeit in Ticks: 0 = 6 Uhr, 6000 = 12 Uhr, 12000 = 18 Uhr, 18000 = 0 Uhr. */
 	public long clockTicks() {
-		float t = (((clockHours - 6f) % 24f) + 24f) % 24f * 1000f;
+		double t = (clockHours - 6.0) * 1000.0;
+		if (timeSpeed > 0.001f) {
+			t += (System.nanoTime() - anchorNanos) / 50_000_000.0 * timeSpeed;
+		}
+		t = ((t % 24000.0) + 24000.0) % 24000.0;
 		return (long) t;
 	}
 
@@ -131,6 +170,8 @@ public final class SkyConfig {
 		saturation = Math.max(0f, Math.min(2f, saturation));
 		starBrightness = c01(starBrightness);
 		clockHours = Math.max(0f, Math.min(24f, clockHours));
+		timeSpeed = Math.max(0f, Math.min(60f, timeSpeed));
+		moonPhase = Math.max(0, Math.min(8, moonPhase));
 		cloudOpacity = c01(cloudOpacity);
 		cloudBrightness = Math.max(0f, Math.min(2f, cloudBrightness));
 		cloudHeightOffset = Math.max(-64f, Math.min(128f, cloudHeightOffset));
@@ -138,14 +179,17 @@ public final class SkyConfig {
 		if (skyTint == null) skyTint = new Tint();
 		if (cloudTint == null) cloudTint = new Tint();
 		if (fogTint == null) fogTint = new Tint();
+		if (dawnTint == null) dawnTint = new Tint();
 		skyTint.clamp();
 		cloudTint.clamp();
 		fogTint.clamp();
-		style = Math.max(0, Math.min(3, style));
+		dawnTint.clamp();
+		style = Math.max(0, Math.min(Theme.STYLES.length - 1, style));
 		accentR = c01(accentR);
 		accentG = c01(accentG);
 		accentB = c01(accentB);
 		panelOpacity = Math.max(0.3f, Math.min(1f, panelOpacity));
+		animSpeed = Math.max(0.2f, Math.min(3f, animSpeed));
 	}
 
 	private static float c01(float v) {
