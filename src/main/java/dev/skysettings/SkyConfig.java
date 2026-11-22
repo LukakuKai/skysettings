@@ -107,6 +107,14 @@ public final class SkyConfig {
 	public boolean effectsEnabled = true;
 	/** Einstellungen je Effekt, Index = Effekt-Nummer (siehe Effects.NAMES, 0 ist unbenutzt) */
 	public Fx[] fx = defaultFx();
+	/** Durchschnittlicher Abstand der Blitze in Sekunden (2 - 30) */
+	public float boltInterval = 7f;
+	/** Maximale Entfernung der echten Blitze in Bloecken (20 - 150) */
+	public float boltDistance = 85f;
+	/** Name der zuletzt gewaehlten Vorlage (nur zur Anzeige) */
+	public String activeLook = "";
+	/** Name des zuletzt gewaehlten eigenen Profils (nur zur Anzeige) */
+	public String activeProfile = "";
 	/** Echte (nur bei dir sichtbare) Blitze beim Gewitter-Effekt */
 	public boolean lightningBolts = true;
 	/** "de" oder "en" */
@@ -206,6 +214,8 @@ public final class SkyConfig {
 		fogStartBlocks = o.fogStartBlocks;
 		rainbowSpeed = o.rainbowSpeed;
 		lightningBolts = o.lightningBolts;
+		boltInterval = o.boltInterval;
+		boltDistance = o.boltDistance;
 		fx = defaultFx();
 		if (o.fx != null) {
 			for (int i = 0; i < fx.length && i < o.fx.length; i++) {
@@ -219,6 +229,26 @@ public final class SkyConfig {
 		fogTint = o.fogTint == null ? new Tint() : o.fogTint.copy();
 		dawnTint = o.dawnTint == null ? new Tint() : o.dawnTint.copy();
 		restartClock();
+	}
+
+	/** Kurzer Vergleichsschluessel aller Himmel-Einstellungen (zum Erkennen, ob eine Vorlage noch genau passt). */
+	public String skyKey() {
+		StringBuilder k = new StringBuilder();
+		float[] v = {skyBrightness, saturation, starBrightness, customTime ? 1 : 0, clockHours, timeSpeed, moonPhase,
+				cloudOpacity, cloudBrightness, cloudHeightOffset, fogDensity, customFogStart ? 1 : 0, fogStartBlocks,
+				rainbowSpeed, boltInterval, boltDistance, lightningBolts ? 1 : 0};
+		for (float f : v) {
+			k.append(Math.round(f * 100f)).append(',');
+		}
+		for (Tint t : new Tint[] {skyTint, cloudTint, fogTint, dawnTint}) {
+			k.append(Math.round(t.strength * 100f)).append(',').append(Math.round(t.r * 100f)).append(',')
+					.append(Math.round(t.g * 100f)).append(',').append(Math.round(t.b * 100f)).append(',')
+					.append(t.rainbow ? 1 : 0).append(';');
+		}
+		for (Fx f : fx) {
+			k.append(f.on ? 1 : 0).append(Math.round(f.strength * 100f)).append(',').append(Math.round(f.speed * 100f)).append(';');
+		}
+		return k.toString();
 	}
 
 	/** Startet die laufende Uhr neu (nach Aenderung von Uhrzeit oder Tempo). */
@@ -249,6 +279,10 @@ public final class SkyConfig {
 		fogDensity = Math.max(0f, Math.min(3f, fogDensity));
 		fogStartBlocks = Math.max(0f, Math.min(512f, fogStartBlocks));
 		rainbowSpeed = Math.max(0.1f, Math.min(10f, rainbowSpeed));
+		boltInterval = Math.max(2f, Math.min(30f, boltInterval));
+		boltDistance = Math.max(20f, Math.min(150f, boltDistance));
+		if (activeLook == null) activeLook = "";
+		if (activeProfile == null) activeProfile = "";
 		Fx[] fixed = defaultFx();
 		if (fx != null) {
 			for (int i = 0; i < fixed.length && i < fx.length; i++) {

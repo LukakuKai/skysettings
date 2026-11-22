@@ -142,6 +142,11 @@ public final class Lang {
 		p("Windböen", "Wind gusts");
 		p("Farbdrift", "Color drift");
 		p("Stroboskop", "Strobe");
+		p("Blitz-Rhythmus", "Lightning interval");
+		p("Blitz-Reichweite", "Lightning range");
+		p("alle", "every");
+		p("Aktiv", "Active");
+		p("geändert", "modified");
 		// Fusszeile
 		p("Design zurücksetzen", "Reset design");
 		p("Himmel zurücksetzen", "Reset sky");

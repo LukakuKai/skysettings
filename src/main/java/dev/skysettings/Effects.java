@@ -20,7 +20,6 @@ public final class Effects {
 		static final Sample NEUTRAL = new Sample(1f, 0f, 0f, 0f, 0f, 1f, 0f, 1f);
 	}
 
-	private static final double SLOT = 7.0;
 	private static long lastBoltSlot = Long.MIN_VALUE;
 
 	private Effects() {
@@ -42,12 +41,12 @@ public final class Effects {
 	}
 
 	/** Blitz-Helligkeit (0 - 1) zum Zeitpunkt t. */
-	private static double stormFlash(double t) {
-		long slot = (long) Math.floor(t / SLOT);
-		if (rnd((int) slot, 61) > 0.75f) {
+	private static double stormFlash(double t, double slotLen) {
+		long slot = (long) Math.floor(t / slotLen);
+		if (rnd((int) slot, 61) > 0.8f) {
 			return 0;
 		}
-		double dt = t - slot * SLOT - rnd((int) slot, 62) * 4.5;
+		double dt = t - slot * slotLen - rnd((int) slot, 62) * slotLen * 0.65;
 		if (dt < 0) {
 			return 0;
 		}
@@ -89,7 +88,7 @@ public final class Effects {
 
 	private static void apply(int id, double t, float k, Acc a) {
 		switch (id) {
-			case STORM -> a.flash = Math.max(a.flash, (float) Math.min(1.0, stormFlash(t) * k));
+			case STORM -> a.flash = Math.max(a.flash, (float) Math.min(1.0, stormFlash(t, SkyConfig.get().boltInterval) * k));
 			case WAVES -> {
 				a.bright *= 1f + 0.16f * k * sin(t * 0.9) + 0.05f * k * sin(t * 3.1 + 1.3);
 				a.cdy += 3.5f * k * sin(t * 0.7 + 0.6);
@@ -157,17 +156,20 @@ public final class Effects {
 		}
 		try {
 			double t = time(storm);
-			long slot = (long) Math.floor(t / SLOT);
-			if (slot == lastBoltSlot || rnd((int) slot, 61) > 0.75f) {
+			double slotLen = c.boltInterval;
+			long slot = (long) Math.floor(t / slotLen);
+			if (slot == lastBoltSlot || rnd((int) slot, 61) > 0.8f) {
 				return;
 			}
-			double dt = t - slot * SLOT - rnd((int) slot, 62) * 4.5;
+			double dt = t - slot * slotLen - rnd((int) slot, 62) * slotLen * 0.65;
 			if (dt < 0 || dt > 0.6) {
 				return;
 			}
 			lastBoltSlot = slot;
 			double ang = Math.random() * Math.PI * 2;
-			double dist = 25 + Math.random() * 60;
+			double maxDist = c.boltDistance;
+			double minDist = Math.max(12.0, maxDist * 0.3);
+			double dist = minDist + Math.random() * (maxDist - minDist);
 			double x = mc.player.getX() + Math.cos(ang) * dist;
 			double z = mc.player.getZ() + Math.sin(ang) * dist;
 			int y = mc.world.getTopY(Heightmap.Type.MOTION_BLOCKING, (int) x, (int) z);

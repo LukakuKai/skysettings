@@ -252,10 +252,22 @@ public final class Looks {
 	private Looks() {
 	}
 
-	public static void apply(Look look) {
+	private static SkyConfig build(Look look) {
 		SkyConfig tmp = new SkyConfig();
 		look.build().accept(tmp);
-		SkyConfig.get().applySky(tmp);
+		return tmp;
+	}
+
+	public static void apply(Look look) {
+		SkyConfig c = SkyConfig.get();
+		c.applySky(build(look));
+		c.activeLook = look.name();
+		c.activeProfile = "";
+	}
+
+	/** True, wenn die aktuellen Himmel-Einstellungen noch genau dieser Vorlage entsprechen. */
+	public static boolean matches(Look look) {
+		return build(look).skyKey().equals(SkyConfig.get().skyKey());
 	}
 
 	private static void time(SkyConfig c, float hours) {

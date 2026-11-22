@@ -57,14 +57,24 @@ public final class Profiles {
 	public static void put(String name) {
 		SkyConfig snapshot = SkyConfig.GSON.fromJson(SkyConfig.GSON.toJson(SkyConfig.get()), SkyConfig.class);
 		map.put(name, snapshot);
+		SkyConfig.get().activeProfile = name;
+		SkyConfig.get().activeLook = "";
 		save();
 	}
 
 	public static void apply(String name) {
 		SkyConfig p = map.get(name);
 		if (p != null) {
-			SkyConfig.get().applySky(p);
+			SkyConfig c = SkyConfig.get();
+			c.applySky(p);
+			c.activeProfile = name;
+			c.activeLook = "";
 		}
+	}
+
+	public static boolean matches(String name) {
+		SkyConfig p = map.get(name);
+		return p != null && p.skyKey().equals(SkyConfig.get().skyKey());
 	}
 
 	public static void delete(String name) {

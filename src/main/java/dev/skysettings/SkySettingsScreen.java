@@ -203,6 +203,11 @@ public class SkySettingsScreen extends Screen {
 								sl("Effekt-Tempo", 0.3f, 3f, f.speed, v -> f.speed = v, SkySettingsScreen::percent)));
 						if (id == Effects.STORM) {
 							rows.add(full(ROW_TOGGLE, tg("Echte Blitze (Gewitter)", () -> c.lightningBolts, v -> c.lightningBolts = v)));
+							rows.add(pair(ROW_SLIDER,
+									sl("Blitz-Rhythmus", 2f, 30f, c.boltInterval, v -> c.boltInterval = Math.round(v),
+											v -> Lang.tr("alle") + " " + Math.round(v) + " s"),
+									sl("Blitz-Reichweite", 20f, 150f, c.boltDistance, v -> c.boltDistance = Math.round(v),
+											v -> Math.round(v) + " " + Lang.tr("Blöcke"))));
 						}
 					}
 				}
@@ -266,16 +271,27 @@ public class SkySettingsScreen extends Screen {
 
 		if (looksTab == 0) {
 			rows.add(full(ROW_HEADER, hdr("Fertige Himmel – Klick zum Anwenden")));
+			SkyConfig cfg = SkyConfig.get();
+			String active = cfg.activeLook;
+			Looks.Look activeLook = null;
+			for (Looks.Look l : Looks.ALL) {
+				if (l.name().equals(active)) {
+					activeLook = l;
+				}
+			}
+			final String status = activeLook == null ? "-" : Lang.tr(activeLook.name())
+					+ (Looks.matches(activeLook) ? "" : " (" + Lang.tr("geändert") + ")");
+			rows.add(full(ROW_HEADER, note(Lang.tr("Aktiv") + ": " + status)));
 			List<Looks.Look> all = Looks.ALL;
 			for (int i = 0; i < all.size(); i += 2) {
 				Looks.Look a = all.get(i);
 				Looks.Look b = i + 1 < all.size() ? all.get(i + 1) : null;
 				rows.add(pair(ROW_BTN,
-						btn(a::name, false, () -> {
+						btn(() -> (a.name().equals(active) ? "» " : "") + Lang.tr(a.name()), a.name().equals(active), () -> {
 							Looks.apply(a);
 							clearAndInit();
 						}),
-						b == null ? null : btn(b::name, false, () -> {
+						b == null ? null : btn(() -> (b.name().equals(active) ? "» " : "") + Lang.tr(b.name()), b.name().equals(active), () -> {
 							Looks.apply(b);
 							clearAndInit();
 						})));
@@ -305,8 +321,9 @@ public class SkySettingsScreen extends Screen {
 				rows.add(full(ROW_HEADER, note("Noch keine Profile gespeichert.")));
 			}
 			for (String name : names) {
+				boolean isActive = name.equals(SkyConfig.get().activeProfile);
 				rows.add(weighted(ROW_BTN, 3, 1,
-						btn(() -> name, false, () -> {
+						btn(() -> (isActive ? "» " : "") + name + (isActive && !Profiles.matches(name) ? " *" : ""), isActive, () -> {
 							Profiles.apply(name);
 							clearAndInit();
 						}),
