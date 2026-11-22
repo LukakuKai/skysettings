@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: gradle build --no-daemon
       - name: Jar pruefen
-        run: unzip -l build/libs/skysettings-1.0.0.jar | grep -E "fabric.mod.json|SkySettingsClient"
+        run: unzip -l build/libs/skysettings-1.0.0.jar | grep -E "fabric.mod.json|SkySettingsClient|META-INF/jars"
       - uses: actions/upload-artifact@v4
         with:
           name: skysettings
