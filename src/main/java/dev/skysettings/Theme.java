@@ -35,6 +35,26 @@ public final class Theme {
 					0, 0, false, 7, 0xFFFF2BD6)
 	};
 
+	public static final int WOOD_INDEX = 1;
+
+	/** Holzsorte: Grundfarbe, Maserung, hell, dunkel */
+	public record Wood(String name, int base, int grain, int light, int dark) {
+	}
+
+	public static final Wood[] WOODS = {
+			new Wood("Eiche", 0xFFB08A57, 0xFF8C6A3E, 0xFFC9A56F, 0xFF6E5230),
+			new Wood("Fichte", 0xFF7A5A34, 0xFF5E4224, 0xFF93703F, 0xFF45301A),
+			new Wood("Birke", 0xFFD3C28B, 0xFFB5A06A, 0xFFE6DAA8, 0xFF9A8856),
+			new Wood("Dschungel", 0xFFB07A55, 0xFF8A5A3C, 0xFFC8926A, 0xFF6A4630),
+			new Wood("Akazie", 0xFFB86A3A, 0xFF92502A, 0xFFD08350, 0xFF6E3C1E),
+			new Wood("Schwarzeiche", 0xFF4A3721, 0xFF35261A, 0xFF5C452B, 0xFF261A10),
+			new Wood("Mangrove", 0xFF7A3A3A, 0xFF5E2B2B, 0xFF934848, 0xFF452020),
+			new Wood("Kirsche", 0xFFE0B4B0, 0xFFC49A96, 0xFFF0CCC8, 0xFFA27A78),
+			new Wood("Bambus", 0xFFC9B04D, 0xFFA8902F, 0xFFDCC768, 0xFF8A7424),
+			new Wood("Karmesin", 0xFF7A3350, 0xFF5C2540, 0xFF934466, 0xFF451830),
+			new Wood("Wirrwarr", 0xFF2E6F70, 0xFF1F5556, 0xFF3E8A8B, 0xFF143C3D)
+	};
+
 	/** Blau, Tuerkis, Gruen, Gelb, Orange, Rot, Pink, Lila */
 	public static final int[] PRESETS = {
 			0x3D8BFF, 0x00BBF9, 0x4ADE80, 0xFEE440, 0xFF9F1C, 0xEF4444, 0xF15BB5, 0x9B5DE5
@@ -47,8 +67,47 @@ public final class Theme {
 		return SkyConfig.get();
 	}
 
+	public static boolean isWood() {
+		return c().style == WOOD_INDEX;
+	}
+
+	public static Wood wood() {
+		return WOODS[Math.max(0, Math.min(WOODS.length - 1, c().woodType))];
+	}
+
 	public static Style style() {
-		return STYLES[Math.max(0, Math.min(STYLES.length - 1, c().style))];
+		int i = Math.max(0, Math.min(STYLES.length - 1, c().style));
+		if (i == WOOD_INDEX) {
+			Wood w = wood();
+			int lum = luminance(w.base());
+			boolean lightWood = lum > 150;
+			return new Style("Holz", w.base(), w.light(),
+					lightWood ? 0xFF2A1A0A : 0xFFFBEED6, lightWood ? 0xFF6A5030 : 0xFFD9BD92,
+					w.dark(), mix(w.dark(), 0xFF000000, 0.5f), mix(w.light(), 0xFFFFFFFF, 0.25f), w.dark(),
+					true, 9, 0xFFE8A93A);
+		}
+		return STYLES[i];
+	}
+
+	static int luminance(int argb) {
+		return (int) (0.299 * ((argb >> 16) & 0xFF) + 0.587 * ((argb >> 8) & 0xFF) + 0.114 * (argb & 0xFF));
+	}
+
+	/** Wendet die Menue-Helligkeit auf eine Farbe an (Alpha bleibt). */
+	public static int shade(int argb) {
+		float f = c().menuBrightness;
+		if (Math.abs(f - 1f) < 0.005f) {
+			return argb;
+		}
+		int a = argb >>> 24;
+		int r = clampByte(((argb >> 16) & 0xFF) * f);
+		int g = clampByte(((argb >> 8) & 0xFF) * f);
+		int bl = clampByte((argb & 0xFF) * f);
+		return (a << 24) | (r << 16) | (g << 8) | bl;
+	}
+
+	private static int clampByte(float v) {
+		return Math.max(0, Math.min(255, Math.round(v)));
 	}
 
 	public static void selectStyle(int index) {
@@ -73,11 +132,11 @@ public final class Theme {
 	public static int panel() {
 		int p = style().panel();
 		int a = Math.round((p >>> 24) * c().panelOpacity);
-		return (a << 24) | (p & 0xFFFFFF);
+		return shade((a << 24) | (p & 0xFFFFFF));
 	}
 
 	public static int surface() {
-		return style().surface();
+		return shade(style().surface());
 	}
 
 	public static int surfaceHover() {
@@ -93,7 +152,7 @@ public final class Theme {
 	}
 
 	public static int track() {
-		return style().track();
+		return shade(style().track());
 	}
 
 	/** Lesbare Textfarbe auf der Akzentfarbe. */
@@ -144,12 +203,17 @@ public final class Theme {
 	public static void box(DrawContext ctx, int x, int y, int w, int h, int fill) {
 		Style s = style();
 		if (s.bevel()) {
-			ctx.fill(x, y, x + w, y + h, s.border());
+			int hi = shade(s.hi());
+			int lo = shade(s.lo());
+			ctx.fill(x, y, x + w, y + h, shade(s.border()));
 			ctx.fill(x + 1, y + 1, x + w - 1, y + h - 1, fill);
-			ctx.fill(x + 1, y + 1, x + w - 1, y + 2, s.hi());
-			ctx.fill(x + 1, y + 1, x + 2, y + h - 1, s.hi());
-			ctx.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, s.lo());
-			ctx.fill(x + w - 2, y + 1, x + w - 1, y + h - 1, s.lo());
+			if (isWood()) {
+				Tex.grain(ctx, x + 1, y + 1, w - 2, h - 2);
+			}
+			ctx.fill(x + 1, y + 1, x + w - 1, y + 2, hi);
+			ctx.fill(x + 1, y + 1, x + 2, y + h - 1, hi);
+			ctx.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, lo);
+			ctx.fill(x + w - 2, y + 1, x + w - 1, y + h - 1, lo);
 		} else {
 			rect(ctx, x, y, w, h, fill, radius());
 		}
@@ -159,15 +223,18 @@ public final class Theme {
 	public static void drawPanel(DrawContext ctx, int x, int y, int w, int h) {
 		Style s = style();
 		if (s.bevel()) {
-			ctx.fill(x, y, x + w, y + h, s.border());
+			int hi = shade(s.hi());
+			int lo = shade(s.lo());
+			ctx.fill(x, y, x + w, y + h, shade(s.border()));
 			ctx.fill(x + 1, y + 1, x + w - 1, y + h - 1, panel());
-			ctx.fill(x + 1, y + 1, x + w - 1, y + 3, s.hi());
-			ctx.fill(x + 1, y + 1, x + 3, y + h - 1, s.hi());
-			ctx.fill(x + 1, y + h - 3, x + w - 1, y + h - 1, s.lo());
-			ctx.fill(x + w - 3, y + 1, x + w - 1, y + h - 1, s.lo());
+			Tex.draw(ctx, x + 1, y + 1, w - 2, h - 2);
+			ctx.fill(x + 1, y + 1, x + w - 1, y + 3, hi);
+			ctx.fill(x + 1, y + 1, x + 3, y + h - 1, hi);
+			ctx.fill(x + 1, y + h - 3, x + w - 1, y + h - 1, lo);
+			ctx.fill(x + w - 3, y + 1, x + w - 1, y + h - 1, lo);
 		} else {
 			int r = radius() + 2;
-			rect(ctx, x, y, w, h, s.border(), r);
+			rect(ctx, x, y, w, h, shade(s.border()), r);
 			rect(ctx, x + 1, y + 1, w - 2, h - 2, panel(), Math.max(0, r - 1));
 		}
 	}

@@ -193,7 +193,24 @@ public class SkySettingsScreen extends Screen {
 				}
 				rows.add(pair(ROW_TOGGLE, tg("Runde Ecken", () -> c.rounded, v -> c.rounded = v),
 						tg("Animationen", () -> c.animations, v -> c.animations = v)));
-				rows.add(full(ROW_SLIDER, sl("Animations-Tempo", 0.2f, 3f, c.animSpeed, v -> c.animSpeed = v, SkySettingsScreen::percent)));
+				if (Theme.isWood()) {
+					rows.add(full(ROW_HEADER, hdr("Holzsorte")));
+					for (int i = 0; i < Theme.WOODS.length; i += 2) {
+						final int a = i;
+						final int b = i + 1;
+						rows.add(pair(ROW_BTN,
+								btn(() -> Theme.WOODS[a].name(), c.woodType == a, () -> {
+									c.woodType = a;
+									clearAndInit();
+								}),
+								b < Theme.WOODS.length ? btn(() -> Theme.WOODS[b].name(), c.woodType == b, () -> {
+									c.woodType = b;
+									clearAndInit();
+								}) : null));
+					}
+				}
+				rows.add(pair(ROW_SLIDER, sl("Menü-Helligkeit", 0.5f, 1.5f, c.menuBrightness, v -> c.menuBrightness = v, SkySettingsScreen::percent),
+						sl("Animations-Tempo", 0.2f, 3f, c.animSpeed, v -> c.animSpeed = v, SkySettingsScreen::percent)));
 			}
 		}
 		return rows;
@@ -279,7 +296,7 @@ public class SkySettingsScreen extends Screen {
 		SkyConfig c = SkyConfig.get();
 		placed.clear();
 		panelY = 10;
-		panelH = height - 34;
+		panelH = height - 20;
 
 		int x = PANEL_X + PAD;
 		int w = PANEL_W - 2 * PAD;
@@ -299,7 +316,7 @@ public class SkySettingsScreen extends Screen {
 		}
 
 		viewTop = tabY + 26;
-		viewBottom = panelY + panelH - 38;
+		viewBottom = panelY + panelH - 50;
 		int rightGap = 8; // Platz fuer Scrollleiste
 		int contentW = w - rightGap;
 
@@ -333,7 +350,7 @@ public class SkySettingsScreen extends Screen {
 		applyScroll();
 
 		// Fusszeile
-		int by = panelY + panelH - 30;
+		int by = panelY + panelH - 44;
 		int half = (w - 6) / 2;
 		boolean design = page == Page.DESIGN;
 		addDrawableChild(new Action(textRenderer, x, by, half, 20,
@@ -425,8 +442,8 @@ public class SkySettingsScreen extends Screen {
 			ctx.fill(sx, thumbY, sx + 3, thumbY + thumbH, accent);
 		}
 
-		// kleine Signatur unten links in der Ecke
-		ctx.drawTextWithShadow(textRenderer, BRAND, 6, height - 13, 0xFFDDDDDD);
+		// kleine Signatur unten links im Menue
+		ctx.drawText(textRenderer, BRAND, PANEL_X + PAD, panelY + panelH - 14, Theme.muted(), false);
 	}
 
 	@Override

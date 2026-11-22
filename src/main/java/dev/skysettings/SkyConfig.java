@@ -76,6 +76,10 @@ public final class SkyConfig {
 	public float panelOpacity = 1.0f;
 	public boolean rounded = true;
 	public boolean animations = true;
+	/** 0.5 - 1.5 (1 = normal), Helligkeit des Menues */
+	public float menuBrightness = 1.0f;
+	/** Index in Theme.WOODS (nur im Stil Holz) */
+	public int woodType = 0;
 	/** 0.2 - 3 */
 	public float animSpeed = 1.0f;
 
@@ -122,6 +126,8 @@ public final class SkyConfig {
 		panelOpacity = d.panelOpacity;
 		rounded = d.rounded;
 		animations = d.animations;
+		menuBrightness = d.menuBrightness;
+		woodType = d.woodType;
 		animSpeed = d.animSpeed;
 	}
 
@@ -190,6 +196,8 @@ public final class SkyConfig {
 		accentB = c01(accentB);
 		panelOpacity = Math.max(0.3f, Math.min(1f, panelOpacity));
 		animSpeed = Math.max(0.2f, Math.min(3f, animSpeed));
+		menuBrightness = Math.max(0.5f, Math.min(1.5f, menuBrightness));
+		woodType = Math.max(0, Math.min(Theme.WOODS.length - 1, woodType));
 	}
 
 	private static float c01(float v) {
