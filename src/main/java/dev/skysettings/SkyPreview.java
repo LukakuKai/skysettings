@@ -105,7 +105,7 @@ public final class SkyPreview {
 		}
 
 		// Block-Effekte im Himmel
-		BlockSky.render(ctx, x, y, w, h, hz, w / Math.max(1f, ctx.getScaledWindowWidth()));
+		if (c.previewFx) BlockSky.render(ctx, x, y, w, h, hz, w / Math.max(1f, ctx.getScaledWindowWidth()));
 
 		// Blitzlicht ueber dem ganzen Himmel
 		if (fx.flash() > 0.02f) {

@@ -142,6 +142,17 @@ public final class Lang {
 		p("Windböen", "Wind gusts");
 		p("Farbdrift", "Color drift");
 		p("Stroboskop", "Strobe");
+		p("Leistung (gegen Lags)", "Performance (against lag)");
+		p("Effekt-Bildrate (FPS, 0 = unbegrenzt)", "Effect frame rate (FPS, 0 = unlimited)");
+		p("Detail: Hoch", "Detail: High");
+		p("Detail: Mittel", "Detail: Medium");
+		p("Detail: Niedrig", "Detail: Low");
+		p("Detail: Sehr niedrig", "Detail: Very low");
+		p("Vorschau-Fenster", "Preview window");
+		p("Effekte in Vorschau", "Effects in preview");
+		p("Blitze (echte)", "Real lightning");
+		p("Effekte nur im Spiel", "Effects only in game");
+		p("Spar-Modus (wenig Lag)", "Power-saving mode (low lag)");
 		p("Block-Effekte", "Block effects");
 		p("Block-Effekte aktiv", "Block effects enabled");
 		p("Block-Effekte (im Himmel sichtbar)", "Block effects (visible in the sky)");

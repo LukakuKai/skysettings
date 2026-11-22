@@ -142,6 +142,25 @@ public class SkySettingsScreen extends Screen {
 					c.lang = c.lang.equals("en") ? "de" : "en";
 					clearAndInit();
 				})));
+				rows.add(full(ROW_HEADER, hdr("Leistung (gegen Lags)")));
+				rows.add(full(ROW_SLIDER, sl("Effekt-Bildrate (FPS, 0 = unbegrenzt)", 0f, 120f, c.fxFps, v -> c.fxFps = Math.round(v) < 5 ? 0 : Math.round(v),
+						v -> Math.round(v) < 5 ? "∞" : Math.round(v) + " FPS")));
+				rows.add(pair(ROW_BTN, btn(() -> "Detail: Hoch", c.fxQuality == 0, () -> { c.fxQuality = 0; clearAndInit(); }),
+						btn(() -> "Detail: Mittel", c.fxQuality == 1, () -> { c.fxQuality = 1; clearAndInit(); })));
+				rows.add(pair(ROW_BTN, btn(() -> "Detail: Niedrig", c.fxQuality == 2, () -> { c.fxQuality = 2; clearAndInit(); }),
+						btn(() -> "Detail: Sehr niedrig", c.fxQuality == 3, () -> { c.fxQuality = 3; clearAndInit(); })));
+				rows.add(pair(ROW_TOGGLE, tg("Vorschau-Fenster", () -> c.showPreview, v -> c.showPreview = v),
+						tg("Effekte in Vorschau", () -> c.previewFx, v -> c.previewFx = v)));
+				rows.add(pair(ROW_TOGGLE, tg("Blitze (echte)", () -> c.lightningBolts, v -> c.lightningBolts = v),
+						tg("Effekte nur im Spiel", () -> c.fxOnlyInGame, v -> c.fxOnlyInGame = v)));
+				rows.add(full(ROW_BTN, btn(() -> "Spar-Modus (wenig Lag)", false, () -> {
+					c.fxFps = 20;
+					c.fxQuality = 3;
+					c.showPreview = false;
+					c.animations = false;
+					c.lightningBolts = false;
+					clearAndInit();
+				})));
 				rows.add(full(ROW_HEADER, hdr("Tipp")));
 				rows.add(full(ROW_HEADER, note("Fertige Himmel findest du unter \"Looks\".")));
 				rows.add(full(ROW_HEADER, note("Alles ist nur bei dir sichtbar.")));
@@ -518,6 +537,9 @@ public class SkySettingsScreen extends Screen {
 
 	/** Zweites Fenster rechts: kleine Vorschau des Himmels mit den aktuellen Einstellungen. */
 	private void drawPreview(DrawContext ctx) {
+		if (!SkyConfig.get().showPreview) {
+			return;
+		}
 		int pw = Math.min(300, width - (PANEL_X + PANEL_W) - 26);
 		if (pw < 110) {
 			return;

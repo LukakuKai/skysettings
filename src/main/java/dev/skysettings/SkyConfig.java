@@ -119,6 +119,16 @@ public final class SkyConfig {
 	public boolean blockFxEnabled = true;
 	/** Groesse der Bloecke in Bildschirm-Einheiten (3 - 16) */
 	public float blockSize = 6f;
+	/** Leistung: Bildrate der Block-Effekte (0 = unbegrenzt, sonst 5 - 120 Bilder/Sekunde) */
+	public int fxFps = 30;
+	/** Leistung: Detailstufe 0 = hoch, 1 = mittel, 2 = niedrig, 3 = sehr niedrig (groessere, weniger Bloecke) */
+	public int fxQuality = 0;
+	/** Leistung: Vorschau-Fenster rechts anzeigen */
+	public boolean showPreview = true;
+	/** Leistung: Block-Effekte auch in der Vorschau anzeigen */
+	public boolean previewFx = true;
+	/** Leistung: Block-Effekte nur zeigen, wenn man nicht im Menue/Inventar ist */
+	public boolean fxOnlyInGame = false;
 	/** Einstellungen je Block-Effekt, Index = Nummer (siehe BlockSky.NAMES, 0 ist unbenutzt) */
 	public Fx[] bfx = defaultBfx();
 	/** Echte (nur bei dir sichtbare) Blitze beim Gewitter-Effekt */
@@ -311,6 +321,8 @@ public final class SkyConfig {
 		if (activeLook == null) activeLook = "";
 		if (activeProfile == null) activeProfile = "";
 		blockSize = Math.max(3f, Math.min(16f, blockSize));
+		fxFps = fxFps <= 0 ? 0 : Math.max(5, Math.min(120, fxFps));
+		fxQuality = Math.max(0, Math.min(3, fxQuality));
 		Fx[] fixedB = defaultBfx();
 		if (bfx != null) {
 			for (int i = 0; i < fixedB.length && i < bfx.length; i++) {

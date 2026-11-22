@@ -61,7 +61,7 @@ public final class BlockSky {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		SkyConfig c = SkyConfig.get();
 		if (mc.world == null || mc.player == null || !c.enabled || !c.blockFxEnabled || !anyActive(c)
-				|| mc.world.getRegistryKey() != World.OVERWORLD) {
+				|| mc.world.getRegistryKey() != World.OVERWORLD || (c.fxOnlyInGame && mc.currentScreen != null)) {
 			return;
 		}
 		int w = ctx.getScaledWindowWidth();
@@ -86,13 +86,18 @@ public final class BlockSky {
 		if (!c.enabled || !c.blockFxEnabled) {
 			return;
 		}
-		int s = Math.max(2, Math.round(c.blockSize * scale));
+		float[] qmul = {1f, 1.5f, 2f, 3f};
+		int s = Math.max(2, Math.round(c.blockSize * scale * qmul[Math.max(0, Math.min(3, c.fxQuality))]));
+		double now = System.nanoTime() / 1_000_000_000.0;
+		if (c.fxFps > 0) {
+			now = Math.floor(now * c.fxFps) / c.fxFps; // Animation nur so oft aktualisieren, wie eingestellt
+		}
 		for (int id = 1; id < NAMES.length; id++) {
 			SkyConfig.Fx f = c.bfx[id];
 			if (!f.on || f.strength <= 0.001f) {
 				continue;
 			}
-			double t = (System.nanoTime() / 1_000_000_000.0 * f.speed) % 100000.0;
+			double t = (now * f.speed) % 100000.0;
 			float k = Math.min(2f, f.strength);
 			switch (id) {
 				case WAVES -> waves(ctx, x0, y0, w, hz, s, t, k);
