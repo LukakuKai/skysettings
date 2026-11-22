@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ public class SkySettingsClient implements ClientModInitializer {
 				dispatcher.register(command);
 			}
 		});
+
+		HudRenderCallback.EVENT.register((context, tickCounter) -> BlockSky.renderHud(context));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			Effects.tick(client);

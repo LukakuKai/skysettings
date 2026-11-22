@@ -41,7 +41,7 @@ public final class Effects {
 	}
 
 	/** Blitz-Helligkeit (0 - 1) zum Zeitpunkt t. */
-	private static double stormFlash(double t, double slotLen) {
+	public static double stormFlash(double t, double slotLen) {
 		long slot = (long) Math.floor(t / slotLen);
 		if (rnd((int) slot, 61) > 0.8f) {
 			return 0;

@@ -88,6 +88,11 @@ public final class SkyEffects {
 		return value;
 	}
 
+	/** Fuer die Menue-Vorschau: wendet Farbmischung, Saettigung, Helligkeit und Effekte auf eine Farbe an. */
+	public static int preview(int argb, SkyConfig.Tint t, float brightness, Effects.Sample fx) {
+		return color(argb, t, brightness, SkyConfig.get().saturation, fx);
+	}
+
 	/** Mischt die eigene Farbe hinein, dann Saettigung, dann Helligkeit. */
 	private static int color(int argb, SkyConfig.Tint t, float brightness, float saturation, Effects.Sample fx) {
 		double r = (argb >> 16) & 0xFF;

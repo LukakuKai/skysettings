@@ -211,6 +211,23 @@ public class SkySettingsScreen extends Screen {
 						}
 					}
 				}
+				rows.add(full(ROW_HEADER, hdr("Block-Effekte (im Himmel sichtbar)")));
+				rows.add(full(ROW_TOGGLE, tg("Block-Effekte aktiv", () -> c.blockFxEnabled, v -> c.blockFxEnabled = v)));
+				rows.add(full(ROW_SLIDER, sl("Block-Größe", 3f, 16f, c.blockSize, v -> c.blockSize = Math.round(v),
+						v -> Math.round(v) + " px")));
+				for (int i = 1; i < BlockSky.NAMES.length; i++) {
+					final int id = i;
+					SkyConfig.Fx f = c.bfx[id];
+					rows.add(full(ROW_TOGGLE, tg(BlockSky.NAMES[id], () -> f.on, v -> {
+						f.on = v;
+						clearAndInit();
+					})));
+					if (f.on) {
+						rows.add(pair(ROW_SLIDER,
+								sl("Effekt-Stärke", 0f, 2f, f.strength, v -> f.strength = v, SkySettingsScreen::percent),
+								sl("Effekt-Tempo", 0.3f, 3f, f.speed, v -> f.speed = v, SkySettingsScreen::percent)));
+					}
+				}
 			}
 			case DESIGN -> {
 				rows.add(full(ROW_HEADER, hdr("Akzentfarbe")));
@@ -483,6 +500,8 @@ public class SkySettingsScreen extends Screen {
 		ctx.drawText(textRenderer, "/sky", PANEL_X + PANEL_W - PAD - textRenderer.getWidth("/sky"), panelY + 15, Theme.muted(), false);
 		ctx.fill(PANEL_X + PAD, panelY + 29, PANEL_X + PANEL_W - PAD, panelY + 30, Theme.argb(accent & 0xFFFFFF, 0.7f));
 
+		drawPreview(ctx);
+
 		super.render(ctx, mouseX, mouseY, deltaTicks);
 
 		// Scrollleiste
@@ -495,6 +514,36 @@ public class SkySettingsScreen extends Screen {
 			ctx.fill(sx, thumbY, sx + 3, thumbY + thumbH, accent);
 		}
 
+	}
+
+	/** Zweites Fenster rechts: kleine Vorschau des Himmels mit den aktuellen Einstellungen. */
+	private void drawPreview(DrawContext ctx) {
+		int pw = Math.min(300, width - (PANEL_X + PANEL_W) - 26);
+		if (pw < 110) {
+			return;
+		}
+		int px = width - pw - 12;
+		int py = panelY;
+		int ph = Math.min(panelH, (int) (pw * 1.05f) + 40);
+		Theme.drawPanel(ctx, px, py, pw, ph);
+		SkyConfig c = SkyConfig.get();
+		ctx.drawText(textRenderer, Lang.tr("Vorschau"), px + 10, py + 9, Theme.text(), false);
+		int sx = px + 8;
+		int sy = py + 24;
+		int sw = pw - 16;
+		int sh = ph - 24 - 24;
+		SkyPreview.draw(ctx, sx, sy, sw, sh);
+		ctx.fill(sx - 1, sy - 1, sx + sw + 1, sy, Theme.accent());
+		ctx.fill(sx - 1, sy + sh, sx + sw + 1, sy + sh + 1, Theme.accent());
+		ctx.fill(sx - 1, sy, sx, sy + sh, Theme.accent());
+		ctx.fill(sx + sw, sy, sx + sw + 1, sy + sh, Theme.accent());
+		float hour = SkyPreview.currentHour();
+		int total = Math.round(hour * 60f) % (24 * 60);
+		String info = Lang.tr("Zeit:") + " " + String.format(Locale.ROOT, "%02d:%02d", total / 60, total % 60);
+		if (!c.activeLook.isEmpty()) {
+			info += "  ·  " + Lang.tr(c.activeLook);
+		}
+		ctx.drawText(textRenderer, info, px + 10, py + ph - 14, Theme.muted(), false);
 	}
 
 	@Override

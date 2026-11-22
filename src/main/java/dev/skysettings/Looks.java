@@ -12,6 +12,7 @@ public final class Looks {
 			new Look("Vanilla", c -> {
 			}),
 			new Look("Goldene Stunde", c -> {
+				block(c, 6, 0.8f);
 				effect(c, 5, 0.4f);
 				time(c, 17.3f);
 				c.saturation = 1.2f;
@@ -21,6 +22,7 @@ public final class Looks {
 				tint(c.dawnTint, .7f, 0xFF8A30);
 			}),
 			new Look("Sonnenuntergang", c -> {
+				block(c, 9, 0.9f);
 				effect(c, 11, 0.5f);
 				time(c, 18.0f);
 				c.saturation = 1.25f;
@@ -30,6 +32,7 @@ public final class Looks {
 				tint(c.dawnTint, .9f, 0xFF4020);
 			}),
 			new Look("Vollmondnacht", c -> {
+				block(c, 6, 1.0f);
 				effect(c, 7, 0.8f);
 				time(c, 0.5f);
 				c.moonPhase = 1;
@@ -39,6 +42,7 @@ public final class Looks {
 				tint(c.fogTint, .5f, 0x1A2A60);
 			}),
 			new Look("Mitternachtsblau", c -> {
+				block(c, 6, 0.8f);
 				effect(c, 5, 0.5f);
 				time(c, 1.0f);
 				c.skyBrightness = 1.4f;
@@ -47,6 +51,7 @@ public final class Looks {
 				tint(c.fogTint, .7f, 0x0A1A55);
 			}),
 			new Look("Blutmond", c -> {
+				block(c, 9, 1.0f);
 				effect(c, 6, 1.0f);
 				time(c, 0.0f);
 				c.moonPhase = 1;
@@ -57,6 +62,7 @@ public final class Looks {
 				tint(c.fogTint, .7f, 0x500000);
 			}),
 			new Look("Alien-Lila", c -> {
+				block(c, 13, 0.9f);
 				effect(c, 11, 1.0f);
 				time(c, 12.0f);
 				c.saturation = 1.3f;
@@ -65,6 +71,7 @@ public final class Looks {
 				tint(c.fogTint, .65f, 0x7A30C0);
 			}),
 			new Look("Rosa Traum", c -> {
+				block(c, 6, 0.8f);
 				effect(c, 5, 0.6f);
 				time(c, 15.0f);
 				tint(c.skyTint, .6f, 0xFF9ACC);
@@ -73,6 +80,7 @@ public final class Looks {
 				tint(c.dawnTint, .6f, 0xFF80C0);
 			}),
 			new Look("Nebelmorgen", c -> {
+				block(c, 10, 1.0f);
 				effect(c, 10, 1.0f);
 				time(c, 7.0f);
 				c.fogDensity = 2.5f;
@@ -82,6 +90,7 @@ public final class Looks {
 				tint(c.fogTint, .75f, 0xD8DEE6);
 			}),
 			new Look("Eiswelt", c -> {
+				block(c, 5, 1.0f);
 				effect(c, 7, 1.0f);
 				time(c, 12.0f);
 				c.saturation = .7f;
@@ -91,6 +100,7 @@ public final class Looks {
 				tint(c.fogTint, .7f, 0xCCEBFF);
 			}),
 			new Look("Giftgrün", c -> {
+				block(c, 13, 1.0f);
 				effect(c, 5, 1.0f);
 				time(c, 12.0f);
 				c.saturation = 1.2f;
@@ -99,6 +109,7 @@ public final class Looks {
 				tint(c.fogTint, .6f, 0x50C040);
 			}),
 			new Look("Wüstenglut", c -> {
+				block(c, 9, 1.2f);
 				effect(c, 9, 1.0f);
 				time(c, 13.0f);
 				c.saturation = 1.2f;
@@ -109,6 +120,7 @@ public final class Looks {
 				tint(c.fogTint, .65f, 0xF0B060);
 			}),
 			new Look("Tiefsee", c -> {
+				block(c, 1, 1.0f);
 				effect(c, 2, 1.0f);
 				time(c, 11.0f);
 				c.skyBrightness = .9f;
@@ -122,6 +134,7 @@ public final class Looks {
 				effect(c, 4, 0.5f);
 			}),
 			new Look("Regenbogen", c -> {
+				block(c, 8, 1.0f);
 				effect(c, 7, 0.5f);
 				time(c, 12.0f);
 				c.rainbowSpeed = 1.2f;
@@ -131,6 +144,7 @@ public final class Looks {
 				rainbow(c.dawnTint, .8f);
 			}),
 			new Look("Disco", c -> {
+				block(c, 11, 1.0f);
 				effect(c, 12, 1.0f);
 				time(c, 0.0f);
 				c.rainbowSpeed = 7f;
@@ -141,6 +155,7 @@ public final class Looks {
 				rainbow(c.fogTint, .9f);
 			}),
 			new Look("Regenbogen-Nacht", c -> {
+				block(c, 6, 1.0f);
 				effect(c, 7, 0.8f);
 				time(c, 1.0f);
 				c.rainbowSpeed = .6f;
@@ -150,6 +165,7 @@ public final class Looks {
 				rainbow(c.cloudTint, .4f);
 			}),
 			new Look("Aurora", c -> {
+				block(c, 4, 1.0f);
 				effect(c, 3, 1.0f);
 				time(c, 0.0f);
 				c.skyBrightness = 1.8f;
@@ -158,6 +174,7 @@ public final class Looks {
 				tint(c.cloudTint, .5f, 0x80FFD0);
 			}),
 			new Look("Cyberpunk", c -> {
+				block(c, 12, 1.0f);
 				effect(c, 4, 1.0f);
 				time(c, 22.0f);
 				c.skyBrightness = 1.4f;
@@ -167,6 +184,7 @@ public final class Looks {
 				tint(c.cloudTint, .6f, 0xFF60E0);
 			}),
 			new Look("Galaxie", c -> {
+				block(c, 6, 1.2f);
 				effect(c, 7, 1.0f);
 				time(c, 1.0f);
 				c.moonPhase = 5;
@@ -176,6 +194,7 @@ public final class Looks {
 				tint(c.cloudTint, .5f, 0x8040FF);
 			}),
 			new Look("Weltuntergang", c -> {
+				block(c, 2, 1.0f);
 				effect(c, 8, 1.0f);
 				time(c, 18.3f);
 				c.skyBrightness = .9f;
@@ -186,6 +205,7 @@ public final class Looks {
 				tint(c.dawnTint, 1f, 0xFF2000);
 			}),
 			new Look("Zuckerwatte", c -> {
+				block(c, 13, 0.8f);
 				effect(c, 11, 0.6f);
 				time(c, 14.0f);
 				c.saturation = 1.1f;
@@ -195,6 +215,7 @@ public final class Looks {
 				tint(c.fogTint, .6f, 0xFFD0F0);
 			}),
 			new Look("Sonnenaufgang", c -> {
+				block(c, 10, 0.7f);
 				effect(c, 5, 0.5f);
 				time(c, 6.2f);
 				c.saturation = 1.2f;
@@ -204,6 +225,7 @@ public final class Looks {
 				tint(c.dawnTint, .9f, 0xFF7030);
 			}),
 			new Look("Gewitter", c -> {
+				block(c, 3, 1.0f);
 				effect(c, 1, 1.0f);
 				time(c, 14.0f);
 				c.skyBrightness = .55f;
@@ -214,6 +236,7 @@ public final class Looks {
 				tint(c.cloudTint, .7f, 0x303640);
 			}),
 			new Look("Matrix", c -> {
+				block(c, 7, 1.0f);
 				effect(c, 4, 0.7f);
 				time(c, 0.0f);
 				c.starBrightness = .2f;
@@ -223,6 +246,7 @@ public final class Looks {
 				tint(c.cloudTint, .7f, 0x20A040);
 			}),
 			new Look("Mars", c -> {
+				block(c, 10, 0.9f);
 				effect(c, 10, 0.8f);
 				time(c, 12.0f);
 				c.saturation = 1.1f;
@@ -232,6 +256,7 @@ public final class Looks {
 				tint(c.cloudTint, .6f, 0xE08050);
 			}),
 			new Look("Ozeanabend", c -> {
+				block(c, 1, 0.7f);
 				effect(c, 2, 0.6f);
 				time(c, 19.0f);
 				tint(c.skyTint, .5f, 0xE07060);
@@ -240,6 +265,7 @@ public final class Looks {
 				tint(c.dawnTint, .8f, 0xFF6A50);
 			}),
 			new Look("Neon-Nacht", c -> {
+				block(c, 12, 0.9f);
 				effect(c, 4, 0.8f);
 				time(c, 23.0f);
 				c.skyBrightness = 1.5f;
@@ -274,6 +300,12 @@ public final class Looks {
 		c.customTime = true;
 		c.clockHours = hours;
 		c.timeSpeed = 0f;
+	}
+
+	private static void block(SkyConfig c, int id, float strength) {
+		c.bfx[id].on = true;
+		c.bfx[id].strength = strength;
+		c.bfx[id].speed = 1f;
 	}
 
 	private static void effect(SkyConfig c, int id, float strength) {

@@ -115,6 +115,12 @@ public final class SkyConfig {
 	public String activeLook = "";
 	/** Name des zuletzt gewaehlten eigenen Profils (nur zur Anzeige) */
 	public String activeProfile = "";
+	/** Schalter fuer alle Block-Effekte zusammen */
+	public boolean blockFxEnabled = true;
+	/** Groesse der Bloecke in Bildschirm-Einheiten (3 - 16) */
+	public float blockSize = 6f;
+	/** Einstellungen je Block-Effekt, Index = Nummer (siehe BlockSky.NAMES, 0 ist unbenutzt) */
+	public Fx[] bfx = defaultBfx();
 	/** Echte (nur bei dir sichtbare) Blitze beim Gewitter-Effekt */
 	public boolean lightningBolts = true;
 	/** "de" oder "en" */
@@ -138,6 +144,14 @@ public final class SkyConfig {
 
 	private static Fx[] defaultFx() {
 		Fx[] a = new Fx[Effects.NAMES.length];
+		for (int i = 0; i < a.length; i++) {
+			a[i] = new Fx();
+		}
+		return a;
+	}
+
+	private static Fx[] defaultBfx() {
+		Fx[] a = new Fx[BlockSky.NAMES.length];
 		for (int i = 0; i < a.length; i++) {
 			a[i] = new Fx();
 		}
@@ -214,6 +228,15 @@ public final class SkyConfig {
 		fogStartBlocks = o.fogStartBlocks;
 		rainbowSpeed = o.rainbowSpeed;
 		lightningBolts = o.lightningBolts;
+		blockSize = o.blockSize;
+		bfx = defaultBfx();
+		if (o.bfx != null) {
+			for (int i = 0; i < bfx.length && i < o.bfx.length; i++) {
+				if (o.bfx[i] != null) {
+					bfx[i] = o.bfx[i].copy();
+				}
+			}
+		}
 		boltInterval = o.boltInterval;
 		boltDistance = o.boltDistance;
 		fx = defaultFx();
@@ -245,6 +268,10 @@ public final class SkyConfig {
 					.append(Math.round(t.g * 100f)).append(',').append(Math.round(t.b * 100f)).append(',')
 					.append(t.rainbow ? 1 : 0).append(';');
 		}
+		for (Fx f : bfx) {
+			k.append(f.on ? 1 : 0).append(Math.round(f.strength * 100f)).append(',').append(Math.round(f.speed * 100f)).append(';');
+		}
+		k.append(Math.round(blockSize * 100f));
 		for (Fx f : fx) {
 			k.append(f.on ? 1 : 0).append(Math.round(f.strength * 100f)).append(',').append(Math.round(f.speed * 100f)).append(';');
 		}
@@ -283,6 +310,18 @@ public final class SkyConfig {
 		boltDistance = Math.max(20f, Math.min(150f, boltDistance));
 		if (activeLook == null) activeLook = "";
 		if (activeProfile == null) activeProfile = "";
+		blockSize = Math.max(3f, Math.min(16f, blockSize));
+		Fx[] fixedB = defaultBfx();
+		if (bfx != null) {
+			for (int i = 0; i < fixedB.length && i < bfx.length; i++) {
+				if (bfx[i] != null) {
+					fixedB[i] = bfx[i];
+					fixedB[i].strength = Math.max(0f, Math.min(2f, fixedB[i].strength));
+					fixedB[i].speed = Math.max(0.3f, Math.min(3f, fixedB[i].speed));
+				}
+			}
+		}
+		bfx = fixedB;
 		Fx[] fixed = defaultFx();
 		if (fx != null) {
 			for (int i = 0; i < fixed.length && i < fx.length; i++) {
