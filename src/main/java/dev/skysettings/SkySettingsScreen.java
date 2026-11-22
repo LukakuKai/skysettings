@@ -137,7 +137,7 @@ public class SkySettingsScreen extends Screen {
 				rows.add(pair(ROW_SLIDER, sl("Helligkeit", 0f, 2f, c.skyBrightness, v -> c.skyBrightness = v, SkySettingsScreen::percent),
 						sl("Sättigung", 0f, 2f, c.saturation, v -> c.saturation = v, SkySettingsScreen::percent)));
 				rows.add(full(ROW_SLIDER, sl("Sterne", 0f, 1f, c.starBrightness, v -> c.starBrightness = v, SkySettingsScreen::percent)));
-				rows.add(full(ROW_TOGGLE, tg("Eigene Uhrzeit", () -> c.customTime, v -> {
+				rows.add(full(ROW_TOGGLE, tg("Eigene Uhrzeit (geht auch bei Mod aus)", () -> c.customTime, v -> {
 					c.customTime = v;
 					c.restartClock();
 				})));
@@ -169,7 +169,7 @@ public class SkySettingsScreen extends Screen {
 				rows.add(full(ROW_HEADER, note("Alles ist nur bei dir sichtbar.")));
 			}
 			case ZEIT -> {
-				rows.add(full(ROW_TOGGLE, tg("Eigene Uhrzeit", () -> c.customTime, v -> {
+				rows.add(full(ROW_TOGGLE, tg("Eigene Uhrzeit (geht auch bei Mod aus)", () -> c.customTime, v -> {
 					c.customTime = v;
 					c.restartClock();
 				})));

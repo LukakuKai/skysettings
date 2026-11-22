@@ -23,7 +23,7 @@ public final class Lang {
 		p("Helligkeit", "Brightness");
 		p("Sättigung", "Saturation");
 		p("Sterne", "Stars");
-		p("Eigene Uhrzeit", "Custom time");
+		p("Eigene Uhrzeit (geht auch bei Mod aus)", "Custom time (works even when mod is off)");
 		p("Tipp", "Tip");
 		p("Fertige Himmel findest du unter \"Looks\".", "Ready-made skies are under \"Looks\".");
 		p("Alles ist nur bei dir sichtbar.", "Everything is only visible to you.");

@@ -18,7 +18,7 @@ public abstract class WorldTimeMixin {
 	@Inject(method = "getTimeOfDay", at = @At("RETURN"), cancellable = true)
 	private void skysettings$customTime(CallbackInfoReturnable<Long> cir) {
 		SkyConfig c = SkyConfig.get();
-		if (!c.enabled || !c.customTime) {
+		if (!c.customTime) { // unabhaengig vom Mod-Schalter
 			return;
 		}
 		World self = (World) (Object) this;
