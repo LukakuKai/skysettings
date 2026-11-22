@@ -113,6 +113,16 @@ public class SkySettingsScreen extends Screen {
 				sl("Rot", 0f, 1f, t.r, v -> t.r = v, SkySettingsScreen::byte255)));
 		rows.add(pair(ROW_SLIDER, sl("Grün", 0f, 1f, t.g, v -> t.g = v, SkySettingsScreen::byte255),
 				sl("Blau", 0f, 1f, t.b, v -> t.b = v, SkySettingsScreen::byte255)));
+		SkyConfig c = SkyConfig.get();
+		rows.add(pair(ROW_TOGGLE, tg("Regenbogen", () -> t.rainbow, v -> {
+			t.rainbow = v;
+			if (v && t.strength < 0.05f) {
+				t.strength = 0.7f;
+			}
+			clearAndInit();
+		}), null));
+		rows.add(full(ROW_SLIDER, sl("Regenbogen-Tempo", 0.1f, 10f, c.rainbowSpeed, v -> c.rainbowSpeed = v,
+				v -> String.format(Locale.ROOT, "%.1fx", v))));
 	}
 
 	private List<Row> buildRows() {
@@ -127,6 +137,10 @@ public class SkySettingsScreen extends Screen {
 				rows.add(full(ROW_TOGGLE, tg("Eigene Uhrzeit", () -> c.customTime, v -> {
 					c.customTime = v;
 					c.restartClock();
+				})));
+				rows.add(full(ROW_BTN, btn(() -> c.lang.equals("en") ? "Language: English" : "Sprache: Deutsch", false, () -> {
+					c.lang = c.lang.equals("en") ? "de" : "en";
+					clearAndInit();
 				})));
 				rows.add(full(ROW_HEADER, hdr("Tipp")));
 				rows.add(full(ROW_HEADER, note("Fertige Himmel findest du unter \"Looks\".")));
@@ -146,10 +160,10 @@ public class SkySettingsScreen extends Screen {
 				rows.add(full(ROW_SLIDER, sl("Tempo (0 = Uhrzeit steht still)", 0f, 30f, c.timeSpeed, v -> {
 					c.timeSpeed = v;
 					c.restartClock();
-				}, v -> v < 0.05f ? "fest" : String.format(Locale.ROOT, "%.1fx", v))));
+				}, v -> v < 0.05f ? Lang.tr("fest") : String.format(Locale.ROOT, "%.1fx", v))));
 				rows.add(full(ROW_HEADER, hdr("Mond")));
 				rows.add(full(ROW_SLIDER, sl("Mondphase", 0f, 8f, c.moonPhase, v -> c.moonPhase = Math.round(v),
-						v -> MOON_NAMES[Math.max(0, Math.min(8, Math.round(v)))])));
+						v -> Lang.tr(MOON_NAMES[Math.max(0, Math.min(8, Math.round(v)))]))));
 			}
 			case HIMMEL -> {
 				rows.add(full(ROW_HEADER, hdr("Himmelsfarbe")));
@@ -168,6 +182,9 @@ public class SkySettingsScreen extends Screen {
 				rows.add(full(ROW_HEADER, hdr("Nebelfarbe")));
 				tintRows(rows, c.fogTint);
 				rows.add(full(ROW_SLIDER, sl("Dichte (0 = kein Nebel)", 0f, 3f, c.fogDensity, v -> c.fogDensity = v, SkySettingsScreen::percent)));
+				rows.add(full(ROW_TOGGLE, tg("Eigener Nebel-Beginn", () -> c.customFogStart, v -> c.customFogStart = v)));
+				rows.add(full(ROW_SLIDER, sl("Nebel beginnt ab", 0f, 512f, c.fogStartBlocks, v -> c.fogStartBlocks = Math.round(v),
+						v -> Math.round(v) + " " + Lang.tr("Blöcke"))));
 			}
 			case LOOKS -> looksRows(rows);
 			case DESIGN -> {
@@ -316,7 +333,7 @@ public class SkySettingsScreen extends Screen {
 		}
 
 		viewTop = tabY + 26;
-		viewBottom = panelY + panelH - 50;
+		viewBottom = panelY + panelH - 38;
 		int rightGap = 8; // Platz fuer Scrollleiste
 		int contentW = w - rightGap;
 
@@ -350,7 +367,7 @@ public class SkySettingsScreen extends Screen {
 		applyScroll();
 
 		// Fusszeile
-		int by = panelY + panelH - 44;
+		int by = panelY + panelH - 30;
 		int half = (w - 6) / 2;
 		boolean design = page == Page.DESIGN;
 		addDrawableChild(new Action(textRenderer, x, by, half, 20,
@@ -397,7 +414,7 @@ public class SkySettingsScreen extends Screen {
 
 	private static String blocks(float v) {
 		int r = Math.round(v);
-		return (r > 0 ? "+" : "") + r + " Blöcke";
+		return (r > 0 ? "+" : "") + r + " " + Lang.tr("Blöcke");
 	}
 
 	private static String clock(float h) {
@@ -425,9 +442,8 @@ public class SkySettingsScreen extends Screen {
 		// Kopfzeile
 		int accent = Theme.accent();
 		ctx.fill(PANEL_X + PAD, panelY + 12, PANEL_X + PAD + 4, panelY + 26, accent);
-		ctx.drawText(textRenderer, "Sky Settings", PANEL_X + PAD + 10, panelY + 15, Theme.text(), false);
-		String sub = Theme.style().name() + " · /sky";
-		ctx.drawText(textRenderer, sub, PANEL_X + PANEL_W - PAD - textRenderer.getWidth(sub), panelY + 15, Theme.muted(), false);
+		ctx.drawText(textRenderer, BRAND, PANEL_X + (PANEL_W - textRenderer.getWidth(BRAND)) / 2, panelY + 15, Theme.text(), false);
+		ctx.drawText(textRenderer, "/sky", PANEL_X + PANEL_W - PAD - textRenderer.getWidth("/sky"), panelY + 15, Theme.muted(), false);
 		ctx.fill(PANEL_X + PAD, panelY + 29, PANEL_X + PANEL_W - PAD, panelY + 30, Theme.argb(accent & 0xFFFFFF, 0.7f));
 
 		super.render(ctx, mouseX, mouseY, deltaTicks);
@@ -442,8 +458,6 @@ public class SkySettingsScreen extends Screen {
 			ctx.fill(sx, thumbY, sx + 3, thumbY + thumbH, accent);
 		}
 
-		// kleine Signatur unten links im Menue
-		ctx.drawText(textRenderer, BRAND, PANEL_X + PAD, panelY + panelH - 14, Theme.muted(), false);
 	}
 
 	@Override
@@ -483,6 +497,7 @@ public class SkySettingsScreen extends Screen {
 
 		@Override
 		protected void renderWidget(DrawContext ctx, int mx, int my, float delta) {
+			String text = Lang.tr(this.text);
 			int tw = font.getWidth(text);
 			ctx.drawText(font, text, getX(), getY() + 5, Theme.accent(), false);
 			int lx = getX() + tw + 6;
@@ -503,7 +518,7 @@ public class SkySettingsScreen extends Screen {
 
 		@Override
 		protected void renderWidget(DrawContext ctx, int mx, int my, float delta) {
-			ctx.drawText(font, text, getX(), getY() + 5, Theme.muted(), false);
+			ctx.drawText(font, Lang.tr(text), getX(), getY() + 5, Theme.muted(), false);
 		}
 	}
 
@@ -529,7 +544,8 @@ public class SkySettingsScreen extends Screen {
 			int bg = selected ? Theme.accent() : (isHovered() ? Theme.surfaceHover() : Theme.surface());
 			Theme.box(ctx, getX(), getY(), getWidth(), getHeight(), bg);
 			int col = selected ? Theme.onAccent() : Theme.text();
-			ctx.drawText(font, label, getX() + (getWidth() - font.getWidth(label)) / 2, getY() + (getHeight() - 8) / 2, col, false);
+			String shown = Lang.tr(label);
+			ctx.drawText(font, shown, getX() + (getWidth() - font.getWidth(shown)) / 2, getY() + (getHeight() - 8) / 2, col, false);
 		}
 	}
 
@@ -554,7 +570,7 @@ public class SkySettingsScreen extends Screen {
 		protected void renderWidget(DrawContext ctx, int mx, int my, float delta) {
 			boolean on = get.getAsBoolean();
 			int cy = getY() + getHeight() / 2;
-			ctx.drawText(font, label, getX(), cy - 4, isHovered() ? Theme.accent() : Theme.text(), false);
+			ctx.drawText(font, Lang.tr(label), getX(), cy - 4, isHovered() ? Theme.accent() : Theme.text(), false);
 			int sw = 26, sh = 12;
 			int sx = getX() + getWidth() - sw;
 			int sy = cy - sh / 2;
@@ -586,7 +602,7 @@ public class SkySettingsScreen extends Screen {
 			int bg = primary ? (isHovered() ? Theme.mix(Theme.accent(), 0xFFFFFFFF, 0.2f) : Theme.accent())
 					: (isHovered() ? Theme.surfaceHover() : Theme.surface());
 			Theme.box(ctx, getX(), getY(), getWidth(), getHeight(), bg);
-			String text = label.get();
+			String text = Lang.tr(label.get());
 			int col = primary ? Theme.onAccent() : Theme.text();
 			ctx.drawText(font, text, getX() + (getWidth() - font.getWidth(text)) / 2, getY() + (getHeight() - 8) / 2, col, false);
 		}
@@ -692,7 +708,7 @@ public class SkySettingsScreen extends Screen {
 			int y = getY() + 2;
 			String v = formatter.apply(current());
 			int vw = font.getWidth(v);
-			String text = label;
+			String text = Lang.tr(label);
 			while (text.length() > 3 && font.getWidth(text) + vw + 8 > w) {
 				text = text.substring(0, text.length() - 1);
 			}

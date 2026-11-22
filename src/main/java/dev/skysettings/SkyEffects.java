@@ -61,9 +61,22 @@ public final class SkyEffects {
 			if (value instanceof Float f) {
 				return f + c.cloudHeightOffset;
 			}
-		} else if (attribute == EnvironmentAttributes.FOG_START_DISTANCE_VISUAL
-				|| attribute == EnvironmentAttributes.FOG_END_DISTANCE_VISUAL
-				|| attribute == EnvironmentAttributes.SKY_FOG_END_DISTANCE_VISUAL
+		} else if (attribute == EnvironmentAttributes.FOG_START_DISTANCE_VISUAL) {
+			if (value instanceof Float f) {
+				if (c.customFogStart) {
+					return c.fogStartBlocks;
+				}
+				float factor = c.fogDensity <= 0.01f ? 100f : 1f / c.fogDensity;
+				return f * factor;
+			}
+		} else if (attribute == EnvironmentAttributes.FOG_END_DISTANCE_VISUAL) {
+			if (value instanceof Float f) {
+				float factor = c.fogDensity <= 0.01f ? 100f : 1f / c.fogDensity;
+				float end = f * factor;
+				// Das Ende darf nie vor dem eigenen Beginn liegen
+				return c.customFogStart ? Math.max(end, c.fogStartBlocks + 16f) : end;
+			}
+		} else if (attribute == EnvironmentAttributes.SKY_FOG_END_DISTANCE_VISUAL
 				|| attribute == EnvironmentAttributes.CLOUD_FOG_END_DISTANCE_VISUAL) {
 			if (value instanceof Float f) {
 				// Mehr Dichte = Nebel beginnt/endet naeher. 0 = Nebel (fast) aus.
@@ -81,9 +94,17 @@ public final class SkyEffects {
 		double b = argb & 0xFF;
 		float s = t.strength;
 		if (s > 0f) {
-			r += (t.r * 255.0 - r) * s;
-			g += (t.g * 255.0 - g) * s;
-			b += (t.b * 255.0 - b) * s;
+			float tr = t.r, tg = t.g, tb = t.b;
+			if (t.rainbow) {
+				double time = System.nanoTime() / 1_000_000_000.0;
+				float hue = (float) (((time * 0.05 * SkyConfig.get().rainbowSpeed + t.hueOffset) % 1.0 + 1.0) % 1.0);
+				tr = clamp01(Math.abs(hue * 6f - 3f) - 1f);
+				tg = clamp01(2f - Math.abs(hue * 6f - 2f));
+				tb = clamp01(2f - Math.abs(hue * 6f - 4f));
+			}
+			r += (tr * 255.0 - r) * s;
+			g += (tg * 255.0 - g) * s;
+			b += (tb * 255.0 - b) * s;
 		}
 		double lum = 0.299 * r + 0.587 * g + 0.114 * b;
 		r = lum + (r - lum) * saturation;

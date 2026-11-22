@@ -20,6 +20,17 @@ public final class SkyConfig {
 		/** 0 = Vanilla, 1 = komplett eigene Farbe */
 		public float strength = 0f;
 		public float r = 1f, g = 1f, b = 1f;
+		/** Farbe wechselt automatisch durch alle Regenbogenfarben */
+		public boolean rainbow = false;
+		/** Versatz im Farbkreis (0 - 1), damit Himmel, Wolken und Nebel verschieden gefaerbt sind */
+		public float hueOffset = 0f;
+
+		public Tint() {
+		}
+
+		public Tint(float hueOffset) {
+			this.hueOffset = hueOffset;
+		}
 
 		void clamp() {
 			strength = c01(strength);
@@ -34,6 +45,8 @@ public final class SkyConfig {
 			t.r = r;
 			t.g = g;
 			t.b = b;
+			t.rainbow = rainbow;
+			t.hueOffset = hueOffset;
 			return t;
 		}
 	}
@@ -62,11 +75,19 @@ public final class SkyConfig {
 	public float cloudHeightOffset = 0.0f;
 	/** 0 - 3 (1 = Vanilla, 0 = kein Nebel) */
 	public float fogDensity = 1.0f;
-	public Tint skyTint = new Tint();
-	public Tint cloudTint = new Tint();
-	public Tint fogTint = new Tint();
+	public Tint skyTint = new Tint(0f);
+	public Tint cloudTint = new Tint(0.2f);
+	public Tint fogTint = new Tint(0.1f);
 	/** Farbe von Sonnenauf- und -untergang */
-	public Tint dawnTint = new Tint();
+	public Tint dawnTint = new Tint(0.3f);
+	/** Eigener Nebel-Beginn: Abstand in Bloecken, ab dem der Nebel anfaengt */
+	public boolean customFogStart = false;
+	/** 0 - 512 Bloecke */
+	public float fogStartBlocks = 40f;
+	/** Geschwindigkeit des Regenbogens, 0.1 - 10 */
+	public float rainbowSpeed = 1.0f;
+	/** "de" oder "en" */
+	public String lang = "de";
 
 	// --- Design des Menues ---
 	/** Index in Theme.STYLES */
@@ -149,6 +170,9 @@ public final class SkyConfig {
 		cloudBrightness = o.cloudBrightness;
 		cloudHeightOffset = o.cloudHeightOffset;
 		fogDensity = o.fogDensity;
+		customFogStart = o.customFogStart;
+		fogStartBlocks = o.fogStartBlocks;
+		rainbowSpeed = o.rainbowSpeed;
 		skyTint = o.skyTint == null ? new Tint() : o.skyTint.copy();
 		cloudTint = o.cloudTint == null ? new Tint() : o.cloudTint.copy();
 		fogTint = o.fogTint == null ? new Tint() : o.fogTint.copy();
@@ -182,10 +206,13 @@ public final class SkyConfig {
 		cloudBrightness = Math.max(0f, Math.min(2f, cloudBrightness));
 		cloudHeightOffset = Math.max(-64f, Math.min(128f, cloudHeightOffset));
 		fogDensity = Math.max(0f, Math.min(3f, fogDensity));
-		if (skyTint == null) skyTint = new Tint();
-		if (cloudTint == null) cloudTint = new Tint();
-		if (fogTint == null) fogTint = new Tint();
-		if (dawnTint == null) dawnTint = new Tint();
+		fogStartBlocks = Math.max(0f, Math.min(512f, fogStartBlocks));
+		rainbowSpeed = Math.max(0.1f, Math.min(10f, rainbowSpeed));
+		if (!"en".equals(lang)) lang = "de";
+		if (skyTint == null) skyTint = new Tint(0f);
+		if (cloudTint == null) cloudTint = new Tint(0.2f);
+		if (fogTint == null) fogTint = new Tint(0.1f);
+		if (dawnTint == null) dawnTint = new Tint(0.3f);
 		skyTint.clamp();
 		cloudTint.clamp();
 		fogTint.clamp();

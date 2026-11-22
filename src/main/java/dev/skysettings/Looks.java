@@ -105,7 +105,119 @@ public final class Looks {
 				tint(c.cloudTint, .5f, 0x70A8C0);
 				tint(c.fogTint, .8f, 0x084868);
 			}),
-			new Look("Schwarz-Weiß", c -> c.saturation = 0f)
+			new Look("Schwarz-Weiß", c -> c.saturation = 0f),
+			new Look("Regenbogen", c -> {
+				time(c, 12.0f);
+				c.rainbowSpeed = 1.2f;
+				rainbow(c.skyTint, .75f);
+				rainbow(c.cloudTint, .6f);
+				rainbow(c.fogTint, .6f);
+				rainbow(c.dawnTint, .8f);
+			}),
+			new Look("Disco", c -> {
+				time(c, 0.0f);
+				c.rainbowSpeed = 7f;
+				c.skyBrightness = 1.5f;
+				c.starBrightness = .3f;
+				rainbow(c.skyTint, .9f);
+				rainbow(c.cloudTint, .9f);
+				rainbow(c.fogTint, .9f);
+			}),
+			new Look("Regenbogen-Nacht", c -> {
+				time(c, 1.0f);
+				c.rainbowSpeed = .6f;
+				c.skyBrightness = 1.6f;
+				rainbow(c.skyTint, .5f);
+				rainbow(c.fogTint, .5f);
+				rainbow(c.cloudTint, .4f);
+			}),
+			new Look("Aurora", c -> {
+				time(c, 0.0f);
+				c.skyBrightness = 1.8f;
+				tint(c.skyTint, .35f, 0x20FFA0);
+				tint(c.fogTint, .4f, 0x10A080);
+				tint(c.cloudTint, .5f, 0x80FFD0);
+			}),
+			new Look("Cyberpunk", c -> {
+				time(c, 22.0f);
+				c.skyBrightness = 1.4f;
+				c.saturation = 1.4f;
+				tint(c.skyTint, .7f, 0xFF2BD6);
+				tint(c.fogTint, .7f, 0x00E5FF);
+				tint(c.cloudTint, .6f, 0xFF60E0);
+			}),
+			new Look("Galaxie", c -> {
+				time(c, 1.0f);
+				c.moonPhase = 5;
+				c.skyBrightness = 1.7f;
+				tint(c.skyTint, .7f, 0x2A0A60);
+				tint(c.fogTint, .6f, 0x300A70);
+				tint(c.cloudTint, .5f, 0x8040FF);
+			}),
+			new Look("Weltuntergang", c -> {
+				time(c, 18.3f);
+				c.skyBrightness = .9f;
+				c.fogDensity = 2.2f;
+				tint(c.skyTint, .8f, 0xFF3000);
+				tint(c.fogTint, .8f, 0xB02000);
+				tint(c.cloudTint, .7f, 0x601000);
+				tint(c.dawnTint, 1f, 0xFF2000);
+			}),
+			new Look("Zuckerwatte", c -> {
+				time(c, 14.0f);
+				c.saturation = 1.1f;
+				c.skyBrightness = 1.15f;
+				tint(c.skyTint, .55f, 0xFFB0E0);
+				tint(c.cloudTint, .8f, 0xB0F0FF);
+				tint(c.fogTint, .6f, 0xFFD0F0);
+			}),
+			new Look("Sonnenaufgang", c -> {
+				time(c, 6.2f);
+				c.saturation = 1.2f;
+				tint(c.skyTint, .45f, 0xFF9A60);
+				tint(c.cloudTint, .5f, 0xFFB0A0);
+				tint(c.fogTint, .5f, 0xFFA070);
+				tint(c.dawnTint, .9f, 0xFF7030);
+			}),
+			new Look("Gewitter", c -> {
+				time(c, 14.0f);
+				c.skyBrightness = .55f;
+				c.saturation = .3f;
+				c.fogDensity = 1.8f;
+				tint(c.skyTint, .6f, 0x404858);
+				tint(c.fogTint, .7f, 0x505868);
+				tint(c.cloudTint, .7f, 0x303640);
+			}),
+			new Look("Matrix", c -> {
+				time(c, 0.0f);
+				c.starBrightness = .2f;
+				c.skyBrightness = 1.2f;
+				tint(c.skyTint, .9f, 0x00FF40);
+				tint(c.fogTint, .8f, 0x003810);
+				tint(c.cloudTint, .7f, 0x20A040);
+			}),
+			new Look("Mars", c -> {
+				time(c, 12.0f);
+				c.saturation = 1.1f;
+				c.fogDensity = 1.3f;
+				tint(c.skyTint, .7f, 0xD0602A);
+				tint(c.fogTint, .7f, 0xB05020);
+				tint(c.cloudTint, .6f, 0xE08050);
+			}),
+			new Look("Ozeanabend", c -> {
+				time(c, 19.0f);
+				tint(c.skyTint, .5f, 0xE07060);
+				tint(c.fogTint, .6f, 0x6080A0);
+				tint(c.cloudTint, .5f, 0xF0A090);
+				tint(c.dawnTint, .8f, 0xFF6A50);
+			}),
+			new Look("Neon-Nacht", c -> {
+				time(c, 23.0f);
+				c.skyBrightness = 1.5f;
+				tint(c.skyTint, .8f, 0x4010A0);
+				tint(c.fogTint, .7f, 0xFF10C0);
+				tint(c.cloudTint, .6f, 0x10E0FF);
+			})
 	);
 
 	private Looks() {
@@ -121,6 +233,11 @@ public final class Looks {
 		c.customTime = true;
 		c.clockHours = hours;
 		c.timeSpeed = 0f;
+	}
+
+	private static void rainbow(SkyConfig.Tint t, float strength) {
+		t.rainbow = true;
+		t.strength = strength;
 	}
 
 	private static void tint(SkyConfig.Tint t, float strength, int rgb) {
