@@ -125,8 +125,7 @@ public final class Theme {
 	}
 
 	public static int radius() {
-		Style s = style();
-		return (s.bevel() || !c().rounded) ? 0 : 4;
+		return c().roundCorners ? 4 : 0;
 	}
 
 	public static int panel() {
@@ -202,7 +201,20 @@ public final class Theme {
 	/** Knopf-/Flaechen-Optik: im Altmodisch-Stil mit Rand und Licht/Schatten, sonst flach und evtl. rund. */
 	public static void box(DrawContext ctx, int x, int y, int w, int h, int fill) {
 		Style s = style();
-		if (s.bevel()) {
+		int rad = radius();
+		if (s.bevel() && rad > 0) {
+			int hi = shade(s.hi());
+			int lo = shade(s.lo());
+			rect(ctx, x, y, w, h, shade(s.border()), rad);
+			rect(ctx, x + 1, y + 1, w - 2, h - 2, fill, rad - 1);
+			if (isWood()) {
+				Tex.grain(ctx, x + rad, y + 1, w - 2 * rad, h - 2);
+			}
+			ctx.fill(x + rad, y + 1, x + w - rad, y + 2, hi);
+			ctx.fill(x + 1, y + rad, x + 2, y + h - rad, hi);
+			ctx.fill(x + rad, y + h - 2, x + w - rad, y + h - 1, lo);
+			ctx.fill(x + w - 2, y + rad, x + w - 1, y + h - rad, lo);
+		} else if (s.bevel()) {
 			int hi = shade(s.hi());
 			int lo = shade(s.lo());
 			ctx.fill(x, y, x + w, y + h, shade(s.border()));
@@ -222,7 +234,19 @@ public final class Theme {
 	/** Das grosse Menue-Fenster. */
 	public static void drawPanel(DrawContext ctx, int x, int y, int w, int h) {
 		Style s = style();
-		if (s.bevel()) {
+		int rad = radius();
+		if (s.bevel() && rad > 0) {
+			int big = rad + 2;
+			int hi = shade(s.hi());
+			int lo = shade(s.lo());
+			rect(ctx, x, y, w, h, shade(s.border()), big);
+			rect(ctx, x + 1, y + 1, w - 2, h - 2, panel(), big - 1);
+			Tex.draw(ctx, x + big, y + big, w - 2 * big, h - 2 * big);
+			ctx.fill(x + big, y + 1, x + w - big, y + 3, hi);
+			ctx.fill(x + 1, y + big, x + 3, y + h - big, hi);
+			ctx.fill(x + big, y + h - 3, x + w - big, y + h - 1, lo);
+			ctx.fill(x + w - 3, y + big, x + w - 1, y + h - big, lo);
+		} else if (s.bevel()) {
 			int hi = shade(s.hi());
 			int lo = shade(s.lo());
 			ctx.fill(x, y, x + w, y + h, shade(s.border()));

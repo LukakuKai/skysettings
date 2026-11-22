@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 public class SkySettingsScreen extends Screen {
 	private enum Page {
-		ALLGEMEIN("Allg."), ZEIT("Zeit"), HIMMEL("Himmel"), WOLKEN("Wolken"), NEBEL("Nebel"), LOOKS("Looks"), DESIGN("Design");
+		ALLGEMEIN("Allg."), ZEIT("Zeit"), HIMMEL("Himmel"), WOLKEN("Wolken"), NEBEL("Nebel"), LOOKS("Looks"), EFFEKT("Effekt"), DESIGN("Design");
 
 		final String label;
 
@@ -41,7 +41,7 @@ public class SkySettingsScreen extends Screen {
 	private static String profileName = "";
 
 	private static final int PANEL_X = 10;
-	private static final int PANEL_W = 340;
+	private static final int PANEL_W = 360;
 	private static final int PAD = 14;
 	private static final int ROW_SLIDER = 26;
 	private static final int ROW_TOGGLE = 22;
@@ -187,6 +187,25 @@ public class SkySettingsScreen extends Screen {
 						v -> Math.round(v) + " " + Lang.tr("Blöcke"))));
 			}
 			case LOOKS -> looksRows(rows);
+			case EFFEKT -> {
+				rows.add(full(ROW_HEADER, hdr("Himmelseffekt")));
+				for (int i = 0; i < Effects.NAMES.length; i += 2) {
+					final int a = i;
+					final int b = i + 1;
+					rows.add(pair(ROW_BTN,
+							btn(() -> Effects.NAMES[a], c.skyEffect == a, () -> {
+								c.skyEffect = a;
+								clearAndInit();
+							}),
+							b < Effects.NAMES.length ? btn(() -> Effects.NAMES[b], c.skyEffect == b, () -> {
+								c.skyEffect = b;
+								clearAndInit();
+							}) : null));
+				}
+				rows.add(pair(ROW_SLIDER, sl("Effekt-Stärke", 0f, 2f, c.effectStrength, v -> c.effectStrength = v, SkySettingsScreen::percent),
+						sl("Effekt-Tempo", 0.3f, 3f, c.effectSpeed, v -> c.effectSpeed = v, SkySettingsScreen::percent)));
+				rows.add(full(ROW_TOGGLE, tg("Echte Blitze (Gewitter)", () -> c.lightningBolts, v -> c.lightningBolts = v)));
+			}
 			case DESIGN -> {
 				rows.add(full(ROW_HEADER, hdr("Akzentfarbe")));
 				rows.add(full(ROW_SLIDER, (x, y, w, h) -> new Swatches(textRenderer, x, y, w, h, this::clearAndInit)));
@@ -208,7 +227,7 @@ public class SkySettingsScreen extends Screen {
 								clearAndInit();
 							}) : null));
 				}
-				rows.add(pair(ROW_TOGGLE, tg("Runde Ecken", () -> c.rounded, v -> c.rounded = v),
+				rows.add(pair(ROW_TOGGLE, tg("Runde Ecken", () -> c.roundCorners, v -> c.roundCorners = v),
 						tg("Animationen", () -> c.animations, v -> c.animations = v)));
 				if (Theme.isWood()) {
 					rows.add(full(ROW_HEADER, hdr("Holzsorte")));

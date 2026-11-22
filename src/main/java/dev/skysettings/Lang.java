@@ -121,6 +121,25 @@ public final class Lang {
 		p("Karmesin", "Crimson");
 		p("Wirrwarr", "Warped");
 		p("Sprache", "Language");
+		// Effekte
+		p("Effekt", "FX");
+		p("Himmelseffekt", "Sky effect");
+		p("Effekt-Stärke", "Effect strength");
+		p("Effekt-Tempo", "Effect speed");
+		p("Echte Blitze (Gewitter)", "Real lightning (storm)");
+		p("Keiner", "None");
+		p("Gewitter (Blitze)", "Thunderstorm (lightning)");
+		p("Wellen", "Waves");
+		p("Polarlicht", "Aurora");
+		p("Neon-Flackern", "Neon flicker");
+		p("Atmen", "Breathing");
+		p("Herzschlag", "Heartbeat");
+		p("Funkeln", "Twinkle");
+		p("Feuer", "Fire");
+		p("Hitzeflimmern", "Heat haze");
+		p("Windböen", "Wind gusts");
+		p("Farbdrift", "Color drift");
+		p("Stroboskop", "Strobe");
 		// Fusszeile
 		p("Design zurücksetzen", "Reset design");
 		p("Himmel zurücksetzen", "Reset sky");

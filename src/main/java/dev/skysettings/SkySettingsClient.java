@@ -32,6 +32,7 @@ public class SkySettingsClient implements ClientModInitializer {
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			Effects.tick(client);
 			if (openRequested) {
 				openRequested = false;
 				client.setScreen(new SkySettingsScreen(client.currentScreen));
