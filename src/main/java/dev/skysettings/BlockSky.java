@@ -57,6 +57,8 @@ public final class BlockSky {
 	// ------------------------------------------------------------------ HUD
 
 	/** Zeichnet die Effekte ueber den Himmelsbereich des Spielbildschirms. */
+	private static double yawPx = 0;
+
 	public static void renderHud(DrawContext ctx) {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		SkyConfig c = SkyConfig.get();
@@ -73,6 +75,7 @@ public final class BlockSky {
 		if (horizon < 8) {
 			return; // Blick nach unten: kein Himmel sichtbar
 		}
+		yawPx = mc.player.getYaw() * (w / Math.max(30.0, fov * w / (double) h));
 		render(ctx, 0, 0, w, h, horizon, 1f);
 	}
 
@@ -82,6 +85,9 @@ public final class BlockSky {
 	 * @param scale Verkleinerungsfaktor gegenueber dem Spielbildschirm (fuer die Vorschau)
 	 */
 	public static void render(DrawContext ctx, int x0, int y0, int w, int h, int hz, float scale) {
+		if (scale < 0.999f) {
+			yawPx = 0;
+		}
 		SkyConfig c = SkyConfig.get();
 		if (!c.enabled || !c.blockFxEnabled) {
 			return;
@@ -123,24 +129,22 @@ public final class BlockSky {
 
 	private static void waves(DrawContext c, int x0, int y0, int w, int hz, int s, double t, float k) {
 		int skyH = hz - y0;
-		float a = Math.min(1f, 0.25f + 0.3f * k);
-		int bands = 6;
+		// Dezent: nur ein schmales Band ueber dem Horizont, durchsichtig, nach oben ausblendend
+		float base = Math.min(0.5f, 0.07f + 0.09f * k);
+		int bands = 4;
+		int shift = (int) Math.round(yawPx / s);
 		for (int b = 0; b < bands; b++) {
-			float yb = y0 + skyH * (0.12f + b * 0.14f);
+			float yb = hz - skyH * (0.10f + b * 0.09f);
 			int rgb = mix(0x2A5CC8, 0x7FEBFF, b / (float) (bands - 1));
+			float a = base * (1f - b * 0.18f);
 			for (int cx = x0, ci = 0; cx < x0 + w; cx += s, ci++) {
-				double wy = yb + Math.sin(ci * 0.28 + t * 1.4 + b * 1.3) * s * 2.0 + Math.sin(ci * 0.11 - t * 0.8) * s;
+				int wi = ci + shift;
+				double wy = yb + Math.sin(wi * 0.28 + t * 0.9 + b * 1.3) * s * 1.2 + Math.sin(wi * 0.11 - t * 0.5) * s * 0.6;
 				int gy = y0 + Math.round((float) ((wy - y0) / s)) * s;
 				if (gy < y0 || gy + s > hz) {
 					continue;
 				}
 				cell(c, cx, gy, s, col(rgb, a));
-				if (gy - s >= y0) {
-					cell(c, cx, gy - s, s, col(0xFFFFFF, a * 0.35f));
-				}
-				if (gy + s + s <= hz) {
-					cell(c, cx, gy + s, s, col(rgb, a * 0.5f));
-				}
 			}
 		}
 	}
