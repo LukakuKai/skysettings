@@ -188,23 +188,24 @@ public class SkySettingsScreen extends Screen {
 			}
 			case LOOKS -> looksRows(rows);
 			case EFFEKT -> {
-				rows.add(full(ROW_HEADER, hdr("Himmelseffekt")));
-				for (int i = 0; i < Effects.NAMES.length; i += 2) {
-					final int a = i;
-					final int b = i + 1;
-					rows.add(pair(ROW_BTN,
-							btn(() -> Effects.NAMES[a], c.skyEffect == a, () -> {
-								c.skyEffect = a;
-								clearAndInit();
-							}),
-							b < Effects.NAMES.length ? btn(() -> Effects.NAMES[b], c.skyEffect == b, () -> {
-								c.skyEffect = b;
-								clearAndInit();
-							}) : null));
+				rows.add(full(ROW_TOGGLE, tg("Effekte aktiv", () -> c.effectsEnabled, v -> c.effectsEnabled = v)));
+				rows.add(full(ROW_HEADER, hdr("Himmelseffekte")));
+				for (int i = 1; i < Effects.NAMES.length; i++) {
+					final int id = i;
+					SkyConfig.Fx f = c.fx[id];
+					rows.add(full(ROW_TOGGLE, tg(Effects.NAMES[id], () -> f.on, v -> {
+						f.on = v;
+						clearAndInit();
+					})));
+					if (f.on) {
+						rows.add(pair(ROW_SLIDER,
+								sl("Effekt-Stärke", 0f, 2f, f.strength, v -> f.strength = v, SkySettingsScreen::percent),
+								sl("Effekt-Tempo", 0.3f, 3f, f.speed, v -> f.speed = v, SkySettingsScreen::percent)));
+						if (id == Effects.STORM) {
+							rows.add(full(ROW_TOGGLE, tg("Echte Blitze (Gewitter)", () -> c.lightningBolts, v -> c.lightningBolts = v)));
+						}
+					}
 				}
-				rows.add(pair(ROW_SLIDER, sl("Effekt-Stärke", 0f, 2f, c.effectStrength, v -> c.effectStrength = v, SkySettingsScreen::percent),
-						sl("Effekt-Tempo", 0.3f, 3f, c.effectSpeed, v -> c.effectSpeed = v, SkySettingsScreen::percent)));
-				rows.add(full(ROW_TOGGLE, tg("Echte Blitze (Gewitter)", () -> c.lightningBolts, v -> c.lightningBolts = v)));
 			}
 			case DESIGN -> {
 				rows.add(full(ROW_HEADER, hdr("Akzentfarbe")));

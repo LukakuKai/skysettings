@@ -33,8 +33,8 @@ public final class Effects {
 		return (n & 0xFFFFFF) / 16777216f;
 	}
 
-	private static double time(SkyConfig c) {
-		return (System.nanoTime() / 1_000_000_000.0 * c.effectSpeed) % 100000.0;
+	private static double time(SkyConfig.Fx f) {
+		return (System.nanoTime() / 1_000_000_000.0 * f.speed) % 100000.0;
 	}
 
 	private static float sin(double v) {
@@ -59,82 +59,104 @@ public final class Effects {
 		return f;
 	}
 
+	private static final class Acc {
+		float bright = 1f, flash = 0f, dr = 0f, dg = 0f, db = 0f, star = 1f, cdy = 0f, fog = 1f;
+	}
+
+	/** Alle eingeschalteten Effekte werden zusammen berechnet. */
 	public static Sample sample() {
 		SkyConfig c = SkyConfig.get();
-		if (!c.enabled || c.skyEffect == NONE || c.effectStrength <= 0.001f) {
+		if (!c.enabled || !c.effectsEnabled) {
 			return Sample.NEUTRAL;
 		}
-		double t = time(c);
-		float k = c.effectStrength;
-		float bright = 1f, flash = 0f, dr = 0f, dg = 0f, db = 0f, star = 1f, cdy = 0f, fog = 1f;
-		switch (c.skyEffect) {
-			case STORM -> flash = (float) Math.min(1.0, stormFlash(t) * k);
+		Acc acc = null;
+		for (int id = 1; id < NAMES.length; id++) {
+			SkyConfig.Fx f = c.fx[id];
+			if (!f.on || f.strength <= 0.001f) {
+				continue;
+			}
+			if (acc == null) {
+				acc = new Acc();
+			}
+			apply(id, time(f), f.strength, acc);
+		}
+		if (acc == null) {
+			return Sample.NEUTRAL;
+		}
+		return new Sample(Math.max(0f, acc.bright), Math.min(1f, acc.flash), acc.dr, acc.dg, acc.db,
+				Math.max(0f, acc.star), acc.cdy, Math.max(0.2f, acc.fog));
+	}
+
+	private static void apply(int id, double t, float k, Acc a) {
+		switch (id) {
+			case STORM -> a.flash = Math.max(a.flash, (float) Math.min(1.0, stormFlash(t) * k));
 			case WAVES -> {
-				bright = 1f + 0.16f * k * sin(t * 0.9) + 0.05f * k * sin(t * 3.1 + 1.3);
-				cdy = 3.5f * k * sin(t * 0.7 + 0.6);
-				fog = 1f + 0.12f * k * sin(t * 0.5);
-				db = 0.03f * k * sin(t * 0.9 + 1.0);
+				a.bright *= 1f + 0.16f * k * sin(t * 0.9) + 0.05f * k * sin(t * 3.1 + 1.3);
+				a.cdy += 3.5f * k * sin(t * 0.7 + 0.6);
+				a.fog *= 1f + 0.12f * k * sin(t * 0.5);
+				a.db += 0.03f * k * sin(t * 0.9 + 1.0);
 			}
 			case AURORA -> {
-				dr = 0.20f * k * (0.5f + 0.5f * sin(t * 0.5 + 2));
-				dg = 0.22f * k * (0.5f + 0.5f * sin(t * 0.4));
-				db = 0.25f * k * (0.5f + 0.5f * sin(t * 0.3 + 4));
-				bright = 1f + 0.1f * k * sin(t * 0.9);
+				a.dr += 0.20f * k * (0.5f + 0.5f * sin(t * 0.5 + 2));
+				a.dg += 0.22f * k * (0.5f + 0.5f * sin(t * 0.4));
+				a.db += 0.25f * k * (0.5f + 0.5f * sin(t * 0.3 + 4));
+				a.bright *= 1f + 0.1f * k * sin(t * 0.9);
 			}
 			case FLICKER -> {
 				float n = rnd((int) Math.floor(t * 18), 71);
-				bright = 1f + k * 0.3f * (n * 2f - 1f);
+				float br = 1f + k * 0.3f * (n * 2f - 1f);
 				if (rnd((int) Math.floor(t * 2.5), 77) > 0.92f) {
-					bright *= Math.max(0.1f, 1f - 0.6f * k);
+					br *= Math.max(0.1f, 1f - 0.6f * k);
 				}
+				a.bright *= br;
 			}
-			case PULSE -> bright = 1f + 0.16f * k * sin(t * 0.8);
+			case PULSE -> a.bright *= 1f + 0.16f * k * sin(t * 0.8);
 			case HEARTBEAT -> {
 				double m = t % 1.2;
 				double b = Math.exp(-Math.pow((m - 0.12) * 14, 2)) + 0.65 * Math.exp(-Math.pow((m - 0.40) * 14, 2));
-				bright = 1f + 0.45f * k * (float) b;
-				dr = 0.06f * k * (float) b;
+				a.bright *= 1f + 0.45f * k * (float) b;
+				a.dr += 0.06f * k * (float) b;
 			}
 			case TWINKLE -> {
-				star = Math.max(0f, 1f + k * (0.45f * sin(t * 2.3) + 0.25f * sin(t * 5.7 + 1) + 0.15f * sin(t * 11.1)));
-				bright = 1f + 0.04f * k * sin(t * 1.5);
+				a.star *= Math.max(0f, 1f + k * (0.45f * sin(t * 2.3) + 0.25f * sin(t * 5.7 + 1) + 0.15f * sin(t * 11.1)));
+				a.bright *= 1f + 0.04f * k * sin(t * 1.5);
 			}
 			case FIRE -> {
-				bright = 1f + k * (0.18f * sin(t * 5.3) * sin(t * 2.1) + 0.08f * sin(t * 11.7));
-				dr = 0.06f * k * (0.5f + 0.5f * sin(t * 3.7));
+				a.bright *= 1f + k * (0.18f * sin(t * 5.3) * sin(t * 2.1) + 0.08f * sin(t * 11.7));
+				a.dr += 0.06f * k * (0.5f + 0.5f * sin(t * 3.7));
 			}
 			case SHIMMER -> {
-				bright = 1f + 0.05f * k * sin(t * 9) + 0.03f * k * sin(t * 17);
-				fog = 1f + 0.1f * k * sin(t * 1.7);
+				a.bright *= 1f + 0.05f * k * sin(t * 9) + 0.03f * k * sin(t * 17);
+				a.fog *= 1f + 0.1f * k * sin(t * 1.7);
 			}
 			case GUST -> {
-				fog = 1f + 0.4f * k * sin(t * 0.4) * sin(t * 0.17 + 1);
-				bright = 1f - 0.05f * k * Math.abs(sin(t * 0.4));
+				a.fog *= 1f + 0.4f * k * sin(t * 0.4) * sin(t * 0.17 + 1);
+				a.bright *= 1f - 0.05f * k * Math.abs(sin(t * 0.4));
 			}
 			case DRIFT -> {
-				dr = 0.09f * k * sin(t * 0.35);
-				dg = 0.09f * k * sin(t * 0.27 + 2);
-				db = 0.09f * k * sin(t * 0.43 + 4);
+				a.dr += 0.09f * k * sin(t * 0.35);
+				a.dg += 0.09f * k * sin(t * 0.27 + 2);
+				a.db += 0.09f * k * sin(t * 0.43 + 4);
 			}
 			case STROBE -> {
 				float step = (float) ((t * 2.0) % 1.0) < 0.12f ? 1.6f : 0.85f;
-				bright = 1f + (step - 1f) * k;
+				a.bright *= 1f + (step - 1f) * k;
 			}
 			default -> {
 			}
 		}
-		return new Sample(Math.max(0f, bright), Math.min(1f, flash), dr, dg, db, star, cdy, Math.max(0.2f, fog));
 	}
 
 	/** Wird jeden Client-Tick aufgerufen und laesst beim Gewitter-Effekt echte (nur bei dir sichtbare) Blitze einschlagen. */
 	public static void tick(MinecraftClient mc) {
 		SkyConfig c = SkyConfig.get();
-		if (!c.enabled || c.skyEffect != STORM || !c.lightningBolts || c.effectStrength <= 0.001f
+		SkyConfig.Fx storm = c.fx[STORM];
+		if (!c.enabled || !c.effectsEnabled || !storm.on || !c.lightningBolts || storm.strength <= 0.001f
 				|| mc.world == null || mc.player == null || mc.world.getRegistryKey() != World.OVERWORLD) {
 			return;
 		}
 		try {
-			double t = time(c);
+			double t = time(storm);
 			long slot = (long) Math.floor(t / SLOT);
 			if (slot == lastBoltSlot || rnd((int) slot, 61) > 0.75f) {
 				return;

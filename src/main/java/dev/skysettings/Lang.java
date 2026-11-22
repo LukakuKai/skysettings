@@ -124,6 +124,8 @@ public final class Lang {
 		// Effekte
 		p("Effekt", "FX");
 		p("Himmelseffekt", "Sky effect");
+		p("Effekte aktiv", "Effects enabled");
+		p("Himmelseffekte", "Sky effects");
 		p("Effekt-Stärke", "Effect strength");
 		p("Effekt-Tempo", "Effect speed");
 		p("Echte Blitze (Gewitter)", "Real lightning (storm)");

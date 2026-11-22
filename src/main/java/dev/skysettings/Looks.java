@@ -265,9 +265,9 @@ public final class Looks {
 	}
 
 	private static void effect(SkyConfig c, int id, float strength) {
-		c.skyEffect = id;
-		c.effectStrength = strength;
-		c.effectSpeed = 1f;
+		c.fx[id].on = true;
+		c.fx[id].strength = strength;
+		c.fx[id].speed = 1f;
 		c.lightningBolts = true;
 	}
 

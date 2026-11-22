@@ -86,12 +86,27 @@ public final class SkyConfig {
 	public float fogStartBlocks = 40f;
 	/** Geschwindigkeit des Regenbogens, 0.1 - 10 */
 	public float rainbowSpeed = 1.0f;
-	/** Himmelseffekt, Index in Effects.NAMES */
-	public int skyEffect = 0;
-	/** 0 - 2 */
-	public float effectStrength = 1.0f;
-	/** 0.3 - 3 */
-	public float effectSpeed = 1.0f;
+	/** Einstellung eines einzelnen Himmelseffekts */
+	public static class Fx {
+		public boolean on = false;
+		/** 0 - 2 */
+		public float strength = 1.0f;
+		/** 0.3 - 3 */
+		public float speed = 1.0f;
+
+		Fx copy() {
+			Fx f = new Fx();
+			f.on = on;
+			f.strength = strength;
+			f.speed = speed;
+			return f;
+		}
+	}
+
+	/** Schalter fuer alle Effekte zusammen */
+	public boolean effectsEnabled = true;
+	/** Einstellungen je Effekt, Index = Effekt-Nummer (siehe Effects.NAMES, 0 ist unbenutzt) */
+	public Fx[] fx = defaultFx();
 	/** Echte (nur bei dir sichtbare) Blitze beim Gewitter-Effekt */
 	public boolean lightningBolts = true;
 	/** "de" oder "en" */
@@ -112,6 +127,14 @@ public final class SkyConfig {
 	public int woodType = 0;
 	/** 0.2 - 3 */
 	public float animSpeed = 1.0f;
+
+	private static Fx[] defaultFx() {
+		Fx[] a = new Fx[Effects.NAMES.length];
+		for (int i = 0; i < a.length; i++) {
+			a[i] = new Fx();
+		}
+		return a;
+	}
 
 	private transient long anchorNanos = System.nanoTime();
 
@@ -182,10 +205,15 @@ public final class SkyConfig {
 		customFogStart = o.customFogStart;
 		fogStartBlocks = o.fogStartBlocks;
 		rainbowSpeed = o.rainbowSpeed;
-		skyEffect = o.skyEffect;
-		effectStrength = o.effectStrength;
-		effectSpeed = o.effectSpeed;
 		lightningBolts = o.lightningBolts;
+		fx = defaultFx();
+		if (o.fx != null) {
+			for (int i = 0; i < fx.length && i < o.fx.length; i++) {
+				if (o.fx[i] != null) {
+					fx[i] = o.fx[i].copy();
+				}
+			}
+		}
 		skyTint = o.skyTint == null ? new Tint() : o.skyTint.copy();
 		cloudTint = o.cloudTint == null ? new Tint() : o.cloudTint.copy();
 		fogTint = o.fogTint == null ? new Tint() : o.fogTint.copy();
@@ -221,9 +249,17 @@ public final class SkyConfig {
 		fogDensity = Math.max(0f, Math.min(3f, fogDensity));
 		fogStartBlocks = Math.max(0f, Math.min(512f, fogStartBlocks));
 		rainbowSpeed = Math.max(0.1f, Math.min(10f, rainbowSpeed));
-		skyEffect = Math.max(0, Math.min(Effects.NAMES.length - 1, skyEffect));
-		effectStrength = Math.max(0f, Math.min(2f, effectStrength));
-		effectSpeed = Math.max(0.3f, Math.min(3f, effectSpeed));
+		Fx[] fixed = defaultFx();
+		if (fx != null) {
+			for (int i = 0; i < fixed.length && i < fx.length; i++) {
+				if (fx[i] != null) {
+					fixed[i] = fx[i];
+					fixed[i].strength = Math.max(0f, Math.min(2f, fixed[i].strength));
+					fixed[i].speed = Math.max(0.3f, Math.min(3f, fixed[i].speed));
+				}
+			}
+		}
+		fx = fixed;
 		if (!"en".equals(lang)) lang = "de";
 		if (skyTint == null) skyTint = new Tint(0f);
 		if (cloudTint == null) cloudTint = new Tint(0.2f);
