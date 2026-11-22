@@ -28,6 +28,19 @@ public class SkySettingsClient implements ClientModInitializer {
 							openRequested = true;
 							return 1;
 						});
+				command.then(ClientCommandManager.literal("off").executes(context -> {
+					SkyConfig.get().enabled = false;
+					SkyConfig.save();
+					context.getSource().sendFeedback(net.minecraft.text.Text.literal("Sky Settings: AUS (Vanilla-Himmel)"));
+					return 1;
+				}));
+				command.then(ClientCommandManager.literal("on").executes(context -> {
+					SkyConfig.get().enabled = true;
+					SkyConfig.get().restartClock();
+					SkyConfig.save();
+					context.getSource().sendFeedback(net.minecraft.text.Text.literal("Sky Settings: AN"));
+					return 1;
+				}));
 				dispatcher.register(command);
 			}
 		});

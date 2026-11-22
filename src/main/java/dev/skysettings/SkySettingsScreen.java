@@ -128,9 +128,12 @@ public class SkySettingsScreen extends Screen {
 	private List<Row> buildRows() {
 		SkyConfig c = SkyConfig.get();
 		List<Row> rows = new ArrayList<>();
+		rows.add(full(ROW_TOGGLE, tg("Mod an (aus = Vanilla-Himmel)", () -> c.enabled, v -> {
+			c.enabled = v;
+			c.restartClock();
+		})));
 		switch (page) {
 			case ALLGEMEIN -> {
-				rows.add(full(ROW_TOGGLE, tg("Sky Settings aktiv", () -> c.enabled, v -> c.enabled = v)));
 				rows.add(pair(ROW_SLIDER, sl("Helligkeit", 0f, 2f, c.skyBrightness, v -> c.skyBrightness = v, SkySettingsScreen::percent),
 						sl("Sättigung", 0f, 2f, c.saturation, v -> c.saturation = v, SkySettingsScreen::percent)));
 				rows.add(full(ROW_SLIDER, sl("Sterne", 0f, 1f, c.starBrightness, v -> c.starBrightness = v, SkySettingsScreen::percent)));

@@ -153,6 +153,7 @@ public final class Lang {
 		p("Blitze (echte)", "Real lightning");
 		p("Effekte nur im Spiel", "Effects only in game");
 		p("Spar-Modus (wenig Lag)", "Power-saving mode (low lag)");
+		p("Mod an (aus = Vanilla-Himmel)", "Mod on (off = vanilla sky)");
 		p("Block-Effekte", "Block effects");
 		p("Block-Effekte aktiv", "Block effects enabled");
 		p("Block-Effekte (im Himmel sichtbar)", "Block effects (visible in the sky)");
