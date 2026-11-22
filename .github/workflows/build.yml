@@ -36,3 +36,4 @@ jobs:
           gh release create latest build/libs/skysettings-1.0.0.jar \
             --title "SkySettings (neuester Build)" \
             --notes "Automatisch gebaut fuer Minecraft 1.21.11 (Fabric). JAR in den mods-Ordner legen."
+          gh release edit latest --draft=false --latest || true
