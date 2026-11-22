@@ -64,8 +64,13 @@ public final class Effects {
 
 	/** Alle eingeschalteten Effekte werden zusammen berechnet. */
 	public static Sample sample() {
+		return sample(false);
+	}
+
+	/** @param forPreview true = auch bei ausgeschalteter Mod berechnen (fuer die Menue-Vorschau) */
+	public static Sample sample(boolean forPreview) {
 		SkyConfig c = SkyConfig.get();
-		if (!c.enabled || !c.effectsEnabled) {
+		if ((!c.enabled && !forPreview) || !c.effectsEnabled) {
 			return Sample.NEUTRAL;
 		}
 		Acc acc = null;

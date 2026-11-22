@@ -89,7 +89,7 @@ public final class BlockSky {
 			yawPx = 0;
 		}
 		SkyConfig c = SkyConfig.get();
-		if (!c.enabled || !c.blockFxEnabled) {
+		if (!c.blockFxEnabled) { // Mod-Schalter wird in renderHud geprueft; die Vorschau zeigt immer
 			return;
 		}
 		float[] qmul = {1f, 1.5f, 2f, 3f};

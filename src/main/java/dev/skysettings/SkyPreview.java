@@ -29,7 +29,7 @@ public final class SkyPreview {
 
 	public static void draw(DrawContext ctx, int x, int y, int w, int h) {
 		SkyConfig c = SkyConfig.get();
-		Effects.Sample fx = Effects.sample();
+		Effects.Sample fx = Effects.sample(true);
 		float hour = currentHour();
 		double t = System.nanoTime() / 1_000_000_000.0;
 		int hz = y + (int) (h * 0.72f);
