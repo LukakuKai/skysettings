@@ -6,6 +6,7 @@
   "description": "Öffne mit /sky ein Menü (mit wählbarem Design) für Uhrzeit, Helligkeit, Sättigung, Himmel-, Wolken- und Nebelfarbe.",
   "authors": ["Du"],
   "license": "GPL-3.0-only",
+  "icon": "assets/skysettings/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": ["dev.skysettings.SkySettingsClient"]
